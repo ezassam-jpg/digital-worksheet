@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>디지털 문화 학습지</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { margin: 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+/* ============================================================
+   ⚠️ 설정: 여기에 배포한 Google Apps Script 웹 앱 URL을 붙여넣으세요
+   (AppsScript_Code.gs.txt 안내 참고)
+   ============================================================ */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxcmXYyXc8dUiwaNblyTzXWmBUt5ElMxaNAzFXgvh3Id6wANoXYfPRp_AYa1mBEpcCH/exec";
+
+/* ============================================================
+   디지털 토큰
+   ============================================================ */
+const INK = "#232244";
+const INK_SOFT = "#4A4A6A";
+const MUTE = "#8686A0";
+const AMBER = "#D89A3E";
+const BG = "#F5F4F9";
+const LINE = "#E3E1EF";
+const GOOD = "#2F9E68";
+
+const TEACHER_CODE = "0708"; // 교사용 화면 진입 코드 (필요시 변경하세요)
+
+/* ---------------- 아이콘 (lucide-react 대체용 인라인 SVG) ---------------- */
+const Icon = ({ children, size = 16, color = "currentColor", ...rest }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
+       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...rest}>
+    {children}
+  </svg>
+);
+const ChevronRight = (p) => <Icon {...p}><polyline points="9 18 15 12 9 6" /></Icon>;
+const ChevronLeft = (p) => <Icon {...p}><polyline points="15 18 9 12 15 6" /></Icon>;
+const Lock = (p) => <Icon {...p}><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></Icon>;
+const Download = (p) => <Icon {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></Icon>;
+const CheckCircle2 = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></Icon>;
+const User = (p) => <Icon {...p}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></Icon>;
+const Sparkles = (p) => <Icon {...p}><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></Icon>;
+const AlertCircle = (p) => <Icon {...p}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></Icon>;
+
+/* ---------------- 문항 정의 ---------------- */
+const STEPS = [
+  { id: "cover", kind: "cover" },
+  {
+    id: "activity1", kind: "field", badge: "지식·이해", no: "01",
+    title: "디지털 기술의 발전에 따라 변화한 사회 모습을 한 가지 찾아 적어보자.",
+    fields: [
+      { key: "past", label: "과거", type: "textarea", placeholder: "예) 사람이 직접 축사 내 기온, 습도 등을 정기적으로 확인하고 돼지의 건강 상태를 살펴 필요한 조치를 하였다.", minLength: 8 },
+      { key: "present", label: "현재", type: "textarea", placeholder: "예) 축사 내에 설치한 센서로 실시간 기온, 습도를 파악하고, 인공지능 기술로 돼지의 건강 상태를 살펴볼 수 있다.", minLength: 8 },
+    ],
+  },
+  {
+    id: "activity2-1", kind: "field", badge: "과정·기능", no: "02",
+    title: "내가 희망하는 학과를 생각해 보고, 해당 학과에서 배우는 내용을 조사한 후, 그와 관련해 디지털 기술과 융합할 미래 사회의 모습을 상상해 보자.",
+    fields: [ { key: "major", label: "진로 희망 학과", type: "text", placeholder: "예) 컴퓨터공학과", minLength: 2 } ],
+  },
+  {
+    id: "activity2-2", kind: "field", badge: "과정·기능", no: "02",
+    title: "희망 학과에서 배우는 내용을 조사해 적어보자.",
+    fields: [ { key: "majorContent", label: "희망 학과에서 배우는 내용", type: "textarea", placeholder: "조사한 내용을 정리해서 적어보세요.", minLength: 10 } ],
+  },
+  {
+    id: "activity2-3", kind: "field", badge: "과정·기능", no: "02",
+    title: "디지털 기술과 융합한 미래 사회의 모습을 상상해 적어보자.",
+    fields: [ { key: "futureVision", label: "디지털 기술과 융합한 미래 사회의 모습", type: "textarea", placeholder: "상상한 내용을 자유롭게 적어보세요.", minLength: 10 } ],
+  },
+  {
+    id: "activity3", kind: "field", badge: "과정·기능", no: "03",
+    title: "디지털 기술의 발전에 따라 새롭게 생겨난 직업을 한 가지만 조사해 적어보자.",
+    fields: [
+      { key: "jobName", label: "직업명", type: "text", placeholder: "예) 데이터 라벨러", minLength: 2 },
+      { key: "jobDesc", label: "하는 일", type: "textarea", placeholder: "이 직업이 실제로 하는 일을 적어보세요.", minLength: 5 },
+      { key: "jobTrait", label: "필요한 적성 또는 흥미", type: "textarea", placeholder: "이 직업에 필요한 적성이나 흥미를 적어보세요.", minLength: 5 },
+    ],
+  },
+  /* -------------------------------------------------------------
+     ✅ 정답이 정해진 문항을 추가하려면 아래처럼 type: "answer" 필드를 쓰세요.
+     correctAnswers 배열에 정답으로 인정할 문자열을 모두 넣으면 됩니다.
+     이 필드는 정답을 맞혀야만 다음으로 넘어가고, 교사 화면에는
+     내용 대신 "정답 확인됨" 표시만 됩니다.
+     예시:
+     {
+       id: "quiz1", kind: "field", badge: "지식·이해", no: "04",
+       title: "디지털 기술의 예로 옳지 않은 것은?",
+       fields: [
+         { key: "quiz1", label: "정답", type: "answer",
+           correctAnswers: ["3", "③"], placeholder: "번호를 입력하세요" }
+       ],
+     },
+  ------------------------------------------------------------- */
+  { id: "review", kind: "review" },
+  { id: "done", kind: "done" },
+];
+
+const FIELD_ORDER = ["past", "present", "major", "majorContent", "futureVision", "jobName", "jobDesc", "jobTrait"];
+const FIELD_LABELS = {
+  past: "과거 사례", present: "현재 사례", major: "진로 희망 학과",
+  majorContent: "희망 학과에서 배우는 내용", futureVision: "디지털 기술과 융합한 미래 사회의 모습",
+  jobName: "직업명", jobDesc: "하는 일", jobTrait: "필요한 적성 또는 흥미",
+};
+
+function noPaste(e) { e.preventDefault(); }
+
+function isAnswerField(f) { return f.type === "answer"; }
+function checkAnswer(f, val) {
+  if (!f.correctAnswers) return true;
+  const norm = (s) => String(s || "").trim().replace(/\s+/g, "");
+  return f.correctAnswers.some((c) => norm(c) === norm(val));
+}
+
+/* ---------------- 진행 스트립 ---------------- */
+function ProgressStrip({ stepIndex, totalFieldSteps }) {
+  const fieldStart = 1;
+  const fieldEnd = STEPS.length - 3; // review, done 제외
+  const current = Math.min(Math.max(stepIndex - fieldStart + 1, 0), totalFieldSteps);
+  return (
+    <div className="flex items-center gap-[3px] select-none" aria-hidden="true">
+      {Array.from({ length: totalFieldSteps }).map((_, i) => {
+        const done = i < current;
+        const active = i === current - 1 && stepIndex >= fieldStart && stepIndex <= fieldEnd;
+        return (
+          <div key={i} className="h-[6px] flex-1 rounded-full transition-all duration-300"
+               style={{ background: done ? AMBER : active ? "#CFCBEA" : LINE }} />
+        );
+      })}
+    </div>
+  );
+}
+
+/* ---------------- 표지 ---------------- */
+function CoverScreen({ student, setStudent, onNext }) {
+  const valid = student.classNum.trim() !== "" && student.number.trim() !== "" && student.name.trim().length >= 2;
+  return (
+    <div>
+      <div className="rounded-2xl overflow-hidden border" style={{ borderColor: LINE }}>
+        <div className="px-6 py-5" style={{ background: INK, color: "#fff" }}>
+          <p className="text-xs tracking-[0.2em] opacity-70 mb-1">정보 · 2022개정 교육과정</p>
+          <h1 className="text-xl font-bold leading-snug">V. 디지털 문화 — 1. 디지털 기술과 사회변화</h1>
+        </div>
+        <div className="bg-white">
+          <Row label="학습 주제">1) 디지털 기술의 영향</Row>
+          <Row label="학습 목표">
+            <ul className="space-y-1 text-[14px] leading-relaxed" style={{ color: INK_SOFT }}>
+              <li>· 디지털 기술의 발달로 변화된 사회 모습을 설명할 수 있다.</li>
+              <li>· 디지털 기술이 사회에 미치는 영향력을 분석할 수 있다.</li>
+            </ul>
+          </Row>
+        </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border p-5" style={{ borderColor: LINE, background: "#fff" }}>
+        <div className="flex items-center gap-2 mb-4">
+          <User size={16} color={AMBER} />
+          <p className="text-sm font-semibold" style={{ color: INK }}>학생 정보를 입력해주세요</p>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <Field label="학년" value="1학년" disabled />
+          <Field label="반" value={student.classNum}
+                 onChange={(v) => setStudent((s) => ({ ...s, classNum: v.replace(/[^0-9]/g, "") }))}
+                 placeholder="예: 3" />
+          <Field label="번호" value={student.number}
+                 onChange={(v) => setStudent((s) => ({ ...s, number: v.replace(/[^0-9]/g, "") }))}
+                 placeholder="예: 12" />
+        </div>
+        <div className="mt-3">
+          <Field label="이름" value={student.name}
+                 onChange={(v) => setStudent((s) => ({ ...s, name: v }))}
+                 placeholder="이름을 입력하세요" />
+        </div>
+      </div>
+
+      <NextBar disabled={!valid} onNext={onNext} label="학습지 시작하기" />
+    </div>
+  );
+}
+
+function Row({ label, children }) {
+  return (
+    <div className="flex border-t first:border-t-0" style={{ borderColor: LINE }}>
+      <div className="w-28 shrink-0 px-4 py-3 text-[13px] font-semibold" style={{ color: INK, background: "#FAFAFD" }}>
+        {label}
+      </div>
+      <div className="flex-1 px-4 py-3">{children}</div>
+    </div>
+  );
+}
+
+function Field({ label, value, onChange, placeholder, disabled }) {
+  return (
+    <label className="block">
+      <span className="block text-[12px] font-medium mb-1" style={{ color: MUTE }}>{label}</span>
+      <input type="text" value={value} disabled={disabled} placeholder={placeholder}
+             onChange={(e) => onChange && onChange(e.target.value)}
+             onPaste={noPaste} onContextMenu={noPaste}
+             className="w-full rounded-lg px-3 py-2 text-[15px] outline-none border transition-colors"
+             style={{ borderColor: LINE, background: disabled ? "#F2F1F7" : "#fff", color: INK }}
+             onFocus={(e) => (e.target.style.borderColor = AMBER)}
+             onBlur={(e) => (e.target.style.borderColor = LINE)} />
+    </label>
+  );
+}
+
+/* ---------------- 문항 화면 ---------------- */
+function FieldScreen({ step, answers, setAnswers, answerErr, setAnswerErr }) {
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-[11px] font-bold px-2 py-1 rounded-md" style={{ background: "#EFE6D6", color: "#8A5B14" }}>{step.badge}</span>
+        <span className="text-[11px] font-mono" style={{ color: MUTE }}>ACT.{step.no}</span>
+      </div>
+      <h2 className="text-[17px] font-bold leading-relaxed mb-5" style={{ color: INK }}>{step.title}</h2>
+
+      <div className="space-y-5">
+        {step.fields.map((f) => {
+          const val = answers[f.key] || "";
+          const ok = isAnswerField(f) ? checkAnswer(f, val) && val.trim().length > 0 : val.trim().length >= f.minLength;
+          return (
+            <div key={f.key}>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[13px] font-semibold" style={{ color: INK }}>{f.label}</span>
+                {val.length > 0 && (
+                  <span className="flex items-center gap-1 text-[12px]" style={{ color: ok ? GOOD : (isAnswerField(f) ? "#C24A4A" : MUTE) }}>
+                    {ok && <CheckCircle2 size={13} />}
+                    {isAnswerField(f) ? (ok ? "정답입니다" : "정답이 아니에요") : (ok ? "작성 완료" : `최소 ${f.minLength}자`)}
+                  </span>
+                )}
+              </div>
+              {f.type === "textarea" ? (
+                <textarea value={val}
+                  onChange={(e) => setAnswers((a) => ({ ...a, [f.key]: e.target.value }))}
+                  onPaste={noPaste} onContextMenu={noPaste}
+                  placeholder={f.placeholder} rows={4}
+                  className="w-full rounded-xl px-4 py-3 text-[15px] leading-relaxed outline-none border resize-none transition-colors"
+                  style={{ borderColor: ok ? "#BFE3CE" : LINE, background: "#fff", color: INK }}
+                  onFocus={(e) => (e.target.style.borderColor = AMBER)}
+                  onBlurCapture={(e) => (e.target.style.borderColor = ok ? "#BFE3CE" : LINE)} />
+              ) : (
+                <input type="text" value={val}
+                  onChange={(e) => setAnswers((a) => ({ ...a, [f.key]: e.target.value }))}
+                  onPaste={noPaste} onContextMenu={noPaste}
+                  placeholder={f.placeholder}
+                  className="w-full rounded-xl px-4 py-3 text-[15px] outline-none border transition-colors"
+                  style={{ borderColor: ok ? "#BFE3CE" : (isAnswerField(f) && val.length > 0 ? "#E08A8A" : LINE), background: "#fff", color: INK }}
+                  onFocus={(e) => (e.target.style.borderColor = AMBER)}
+                  onBlurCapture={(e) => (e.target.style.borderColor = ok ? "#BFE3CE" : LINE)} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="mt-4 flex items-start gap-1.5 text-[12px]" style={{ color: MUTE }}>
+        <AlertCircle size={13} className="mt-[1px] shrink-0" />
+        직접 입력해야 다음으로 진행돼요. 붙여넣기는 지원하지 않습니다.
+      </p>
+    </div>
+  );
+}
+
+/* ---------------- 검토 화면 ---------------- */
+function ReviewScreen({ student, answers }) {
+  return (
+    <div>
+      <h2 className="text-[17px] font-bold mb-1" style={{ color: INK }}>제출 전 확인해주세요</h2>
+      <p className="text-[13px] mb-5" style={{ color: MUTE }}>1학년 {student.classNum}반 {student.number}번 {student.name}</p>
+      <div className="rounded-2xl border divide-y" style={{ borderColor: LINE }}>
+        {FIELD_ORDER.map((k) => (
+          <div key={k} className="px-4 py-3">
+            <p className="text-[12px] font-semibold mb-1" style={{ color: AMBER }}>{FIELD_LABELS[k]}</p>
+            <p className="text-[14px] leading-relaxed whitespace-pre-wrap" style={{ color: INK_SOFT }}>{answers[k]}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- 완료 화면 ---------------- */
+function DoneScreen({ student }) {
+  return (
+    <div className="flex flex-col items-center text-center py-10">
+      <div className="w-16 h-16 rounded-full flex items-center justify-center mb-5" style={{ background: "#E8F5EC" }}>
+        <CheckCircle2 size={30} color={GOOD} />
+      </div>
+      <h2 className="text-[18px] font-bold mb-1" style={{ color: INK }}>제출이 완료되었습니다</h2>
+      <p className="text-[14px]" style={{ color: MUTE }}>1학년 {student.classNum}반 {student.number}번 {student.name}님, 수고하셨어요.</p>
+      <p className="text-[12px] mt-6" style={{ color: MUTE }}>이 창은 이제 닫으셔도 됩니다.</p>
+    </div>
+  );
+}
+
+function NextBar({ disabled, onNext, onPrev, label = "다음" }) {
+  return (
+    <div className="flex items-center gap-2 mt-6">
+      {onPrev && (
+        <button onClick={onPrev}
+          className="flex items-center justify-center gap-1 rounded-xl px-4 py-3 text-[14px] font-semibold border"
+          style={{ borderColor: LINE, color: INK_SOFT, background: "#fff" }}>
+          <ChevronLeft size={16} /> 이전
+        </button>
+      )}
+      <button onClick={onNext} disabled={disabled}
+        className="flex-1 flex items-center justify-center gap-1 rounded-xl px-4 py-3 text-[15px] font-bold transition-all"
+        style={{ background: disabled ? "#E4E2EF" : INK, color: disabled ? "#A6A4BE" : "#fff", cursor: disabled ? "not-allowed" : "pointer" }}>
+        {label} <ChevronRight size={17} />
+      </button>
+    </div>
+  );
+}
+
+/* ---------------- 교사용 화면 ---------------- */
+function TeacherGate({ onSuccess, onBack }) {
+  const [code, setCode] = useState("");
+  const [err, setErr] = useState(false);
+  return (
+    <div className="max-w-sm mx-auto py-16 text-center">
+      <Lock size={22} color={INK} className="mx-auto mb-3" />
+      <p className="text-[15px] font-semibold mb-4" style={{ color: INK }}>교사용 확인 코드를 입력하세요</p>
+      <input type="password" value={code}
+        onChange={(e) => { setCode(e.target.value); setErr(false); }}
+        onPaste={noPaste}
+        className="w-full text-center tracking-[0.3em] rounded-xl px-4 py-3 border outline-none mb-3"
+        style={{ borderColor: err ? "#E08A8A" : LINE }}
+        placeholder="••••" />
+      {err && <p className="text-[12px] mb-3" style={{ color: "#C24A4A" }}>코드가 올바르지 않습니다.</p>}
+      <button onClick={() => (code === TEACHER_CODE ? onSuccess() : setErr(true))}
+        className="w-full rounded-xl px-4 py-3 font-bold mb-2" style={{ background: INK, color: "#fff" }}>확인</button>
+      <button onClick={onBack} className="text-[13px]" style={{ color: MUTE }}>학생 화면으로 돌아가기</button>
+    </div>
+  );
+}
+
+function TeacherView({ onBack }) {
+  const [rows, setRows] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [openIdx, setOpenIdx] = useState(null);
+  const [error, setError] = useState("");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError("");
+    try {
+      if (!SCRIPT_URL || SCRIPT_URL.includes("여기에")) {
+        throw new Error("SCRIPT_URL이 설정되지 않았습니다. index.html 상단의 SCRIPT_URL을 확인하세요.");
+      }
+      const res = await fetch(SCRIPT_URL, { method: "GET" });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || "불러오기 실패");
+      const items = (data.rows || []).sort((a, b) => (a["반"] - b["반"]) || (a["번호"] - b["번호"]));
+      setRows(items);
+    } catch (e) {
+      setError(String(e.message || e));
+      setRows([]);
+    }
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  const downloadCSV = () => {
+    const header = ["반", "번호", "이름", ...FIELD_ORDER.map((k) => FIELD_LABELS[k]), "제출시각"];
+    const esc = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const lines = [header.map(esc).join(",")];
+    rows.forEach((r) => {
+      lines.push([r["반"], r["번호"], r["이름"], ...FIELD_ORDER.map((k) => r[k]), r["제출시각"]].map(esc).join(","));
+    });
+    const blob = new Blob(["\uFEFF" + lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = "디지털문화_학습지_제출목록.csv"; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h2 className="text-[17px] font-bold" style={{ color: INK }}>제출 현황</h2>
+          <p className="text-[12px]" style={{ color: MUTE }}>총 {rows.length}명 제출</p>
+        </div>
+        <div className="flex gap-2">
+          <button onClick={load} className="text-[13px] px-3 py-2 rounded-lg border" style={{ borderColor: LINE, color: INK_SOFT }}>새로고침</button>
+          <button onClick={downloadCSV} disabled={!rows.length}
+            className="flex items-center gap-1 text-[13px] px-3 py-2 rounded-lg font-semibold"
+            style={{ background: rows.length ? INK : "#E4E2EF", color: rows.length ? "#fff" : "#A6A4BE" }}>
+            <Download size={14} /> CSV 다운로드
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="mb-4 rounded-xl border p-3 text-[12px]" style={{ borderColor: "#E08A8A", color: "#C24A4A", background: "#FDF3F3" }}>
+          {error}
+        </div>
+      )}
+
+      {loading ? (
+        <p className="text-center py-10 text-[13px]" style={{ color: MUTE }}>불러오는 중...</p>
+      ) : rows.length === 0 ? (
+        <p className="text-center py-10 text-[13px]" style={{ color: MUTE }}>아직 제출한 학생이 없습니다.</p>
+      ) : (
+        <div className="rounded-2xl border overflow-hidden" style={{ borderColor: LINE }}>
+          {rows.map((r, i) => (
+            <div key={i} className="border-t first:border-t-0" style={{ borderColor: LINE }}>
+              <button onClick={() => setOpenIdx(openIdx === i ? null : i)}
+                className="w-full flex items-center justify-between px-4 py-3 text-left"
+                style={{ background: openIdx === i ? "#FAFAFD" : "#fff" }}>
+                <span className="text-[14px] font-medium" style={{ color: INK }}>{r["반"]}반 {r["번호"]}번 {r["이름"]}</span>
+                <span className="text-[11px]" style={{ color: MUTE }}>{r["제출시각"]}</span>
+              </button>
+              {openIdx === i && (
+                <div className="px-4 pb-4 space-y-3">
+                  {FIELD_ORDER.map((k) => (
+                    <div key={k}>
+                      <p className="text-[11px] font-semibold" style={{ color: AMBER }}>{FIELD_LABELS[k]}</p>
+                      <p className="text-[13px] whitespace-pre-wrap" style={{ color: INK_SOFT }}>{r[k]}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <button onClick={onBack} className="mt-6 text-[13px]" style={{ color: MUTE }}>학생 화면으로 돌아가기</button>
+    </div>
+  );
+}
+
+/* ---------------- 메인 ---------------- */
+function App() {
+  const [mode, setMode] = useState("student");
+  const [stepIndex, setStepIndex] = useState(0);
+  const [student, setStudent] = useState({ classNum: "", number: "", name: "" });
+  const [answers, setAnswers] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitErr, setSubmitErr] = useState("");
+
+  const step = STEPS[stepIndex];
+  const fieldSteps = STEPS.filter((s) => s.kind === "field");
+
+  const currentStepValid = (() => {
+    if (step.kind !== "field") return true;
+    return step.fields.every((f) => {
+      const val = answers[f.key] || "";
+      if (isAnswerField(f)) return checkAnswer(f, val) && val.trim().length > 0;
+      return val.trim().length >= f.minLength;
+    });
+  })();
+
+  const goNext = () => setStepIndex((i) => Math.min(i + 1, STEPS.length - 1));
+  const goPrev = () => setStepIndex((i) => Math.max(i - 1, 0));
+
+  const submit = async () => {
+    setSubmitting(true);
+    setSubmitErr("");
+    const payload = {
+      grade: "1학년", classNum: student.classNum, number: student.number, name: student.name,
+      ...answers, submittedAt: new Date().toLocaleString("ko-KR"),
+    };
+    try {
+      if (!SCRIPT_URL || SCRIPT_URL.includes("여기에")) {
+        throw new Error("SCRIPT_URL이 설정되지 않았습니다.");
+      }
+      // Apps Script 프리플라이트(OPTIONS) 회피를 위해 text/plain으로 전송
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || "저장 실패");
+      goNext();
+    } catch (e) {
+      setSubmitErr("제출 중 문제가 발생했어요. 다시 시도해주세요. (" + (e.message || e) + ")");
+    }
+    setSubmitting(false);
+  };
+
+  return (
+    <div className="min-h-screen w-full" style={{ background: BG, fontFamily: "'Apple SD Gothic Neo','Malgun Gothic','Pretendard',system-ui,sans-serif" }}>
+      <div className="max-w-xl mx-auto px-5 py-8">
+        {mode === "student" && (
+          <>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-1.5">
+                <Sparkles size={15} color={AMBER} />
+                <span className="text-[12px] font-bold tracking-wide" style={{ color: INK }}>디지털 문화 학습지</span>
+              </div>
+              {step.kind === "field" && (
+                <span className="text-[11px] font-mono" style={{ color: MUTE }}>{fieldSteps.indexOf(step) + 1} / {fieldSteps.length}</span>
+              )}
+            </div>
+
+            {step.kind === "field" && (
+              <div className="mb-6"><ProgressStrip stepIndex={stepIndex} totalFieldSteps={fieldSteps.length} /></div>
+            )}
+
+            <div className="rounded-2xl bg-white border p-6" style={{ borderColor: LINE }}>
+              {step.kind === "cover" && <CoverScreen student={student} setStudent={setStudent} onNext={goNext} />}
+              {step.kind === "field" && (
+                <>
+                  <FieldScreen step={step} answers={answers} setAnswers={setAnswers} />
+                  <NextBar disabled={!currentStepValid} onNext={goNext} onPrev={goPrev} />
+                </>
+              )}
+              {step.kind === "review" && (
+                <>
+                  <ReviewScreen student={student} answers={answers} />
+                  {submitErr && <p className="mt-3 text-[13px]" style={{ color: "#C24A4A" }}>{submitErr}</p>}
+                  <NextBar disabled={submitting} onNext={submit} onPrev={goPrev} label={submitting ? "제출 중..." : "제출하기"} />
+                </>
+              )}
+              {step.kind === "done" && <DoneScreen student={student} />}
+            </div>
+
+            <button onClick={() => setMode("teacher-gate")}
+              className="mt-6 mx-auto flex items-center gap-1 text-[11px] opacity-50 hover:opacity-100" style={{ color: INK }}>
+              <Lock size={11} /> 교사용
+            </button>
+          </>
+        )}
+
+        {mode === "teacher-gate" && <TeacherGate onSuccess={() => setMode("teacher")} onBack={() => setMode("student")} />}
+        {mode === "teacher" && <TeacherView onBack={() => setMode("student")} />}
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+</script>
+</body>
+</html>
