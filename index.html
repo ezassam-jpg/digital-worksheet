@@ -138,8 +138,8 @@
         errMsg.textContent = data.error || "등록되지 않은 학번입니다. 선생님께 문의하세요.";
         errMsg.style.display = "block";
       } else {
-        // data.file 예: "v11" 또는 "v11.html"
-        let file = data.file;
+        // data.file 예: "v11", "V11", "v11.html" 등 - 소문자로 통일
+        let file = data.file.trim().toLowerCase();
         if (!file.endsWith(".html")) file += ".html";
         window.location.href = file;
         return;
