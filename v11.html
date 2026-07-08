@@ -323,28 +323,7 @@ function NextBar({ disabled, onNext, onPrev, label = "다음" }) {
   );
 }
 
-/* ---------------- 교사용 화면 ---------------- */
-function TeacherGate({ onSuccess, onBack }) {
-  const [code, setCode] = useState("");
-  const [err, setErr] = useState(false);
-  return (
-    <div className="max-w-sm mx-auto py-16 text-center">
-      <Lock size={22} color={INK} className="mx-auto mb-3" />
-      <p className="text-[15px] font-semibold mb-4" style={{ color: INK }}>교사용 확인 코드를 입력하세요</p>
-      <input type="password" value={code}
-        onChange={(e) => { setCode(e.target.value); setErr(false); }}
-        onPaste={noPaste}
-        className="w-full text-center tracking-[0.3em] rounded-xl px-4 py-3 border outline-none mb-3"
-        style={{ borderColor: err ? "#E08A8A" : LINE }}
-        placeholder="••••" />
-      {err && <p className="text-[12px] mb-3" style={{ color: "#C24A4A" }}>코드가 올바르지 않습니다.</p>}
-      <button onClick={() => (code === TEACHER_CODE ? onSuccess() : setErr(true))}
-        className="w-full rounded-xl px-4 py-3 font-bold mb-2" style={{ background: INK, color: "#fff" }}>확인</button>
-      <button onClick={onBack} className="text-[13px]" style={{ color: MUTE }}>학생 화면으로 돌아가기</button>
-    </div>
-  );
-}
-
+/* ---------------- 교사용 화면 (미사용 - 필요시 재사용) ---------------- */
 function TeacherView({ onBack }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -445,7 +424,6 @@ function TeacherView({ onBack }) {
 
 /* ---------------- 메인 ---------------- */
 function App() {
-  const [mode, setMode] = useState("student");
   const [stepIndex, setStepIndex] = useState(0);
   const [student, setStudent] = useState({ classNum: "", number: "", name: "" });
   const [answers, setAnswers] = useState({});
@@ -496,49 +474,37 @@ function App() {
   return (
     <div className="min-h-screen w-full" style={{ background: BG, fontFamily: "'Apple SD Gothic Neo','Malgun Gothic','Pretendard',system-ui,sans-serif" }}>
       <div className="max-w-xl mx-auto px-5 py-8">
-        {mode === "student" && (
-          <>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-1.5">
-                <Sparkles size={15} color={AMBER} />
-                <span className="text-[12px] font-bold tracking-wide" style={{ color: INK }}>디지털 문화 학습지</span>
-              </div>
-              {step.kind === "field" && (
-                <span className="text-[11px] font-mono" style={{ color: MUTE }}>{fieldSteps.indexOf(step) + 1} / {fieldSteps.length}</span>
-              )}
-            </div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-1.5">
+            <Sparkles size={15} color={AMBER} />
+            <span className="text-[12px] font-bold tracking-wide" style={{ color: INK }}>디지털 문화 학습지</span>
+          </div>
+          {step.kind === "field" && (
+            <span className="text-[11px] font-mono" style={{ color: MUTE }}>{fieldSteps.indexOf(step) + 1} / {fieldSteps.length}</span>
+          )}
+        </div>
 
-            {step.kind === "field" && (
-              <div className="mb-6"><ProgressStrip stepIndex={stepIndex} totalFieldSteps={fieldSteps.length} /></div>
-            )}
-
-            <div className="rounded-2xl bg-white border p-6" style={{ borderColor: LINE }}>
-              {step.kind === "cover" && <CoverScreen student={student} setStudent={setStudent} onNext={goNext} />}
-              {step.kind === "field" && (
-                <>
-                  <FieldScreen step={step} answers={answers} setAnswers={setAnswers} />
-                  <NextBar disabled={!currentStepValid} onNext={goNext} onPrev={goPrev} />
-                </>
-              )}
-              {step.kind === "review" && (
-                <>
-                  <ReviewScreen student={student} answers={answers} />
-                  {submitErr && <p className="mt-3 text-[13px]" style={{ color: "#C24A4A" }}>{submitErr}</p>}
-                  <NextBar disabled={submitting} onNext={submit} onPrev={goPrev} label={submitting ? "제출 중..." : "제출하기"} />
-                </>
-              )}
-              {step.kind === "done" && <DoneScreen student={student} />}
-            </div>
-
-            <button onClick={() => setMode("teacher-gate")}
-              className="mt-6 mx-auto flex items-center gap-1 text-[11px] opacity-50 hover:opacity-100" style={{ color: INK }}>
-              <Lock size={11} /> 교사용
-            </button>
-          </>
+        {step.kind === "field" && (
+          <div className="mb-6"><ProgressStrip stepIndex={stepIndex} totalFieldSteps={fieldSteps.length} /></div>
         )}
 
-        {mode === "teacher-gate" && <TeacherGate onSuccess={() => setMode("teacher")} onBack={() => setMode("student")} />}
-        {mode === "teacher" && <TeacherView onBack={() => setMode("student")} />}
+        <div className="rounded-2xl bg-white border p-6" style={{ borderColor: LINE }}>
+          {step.kind === "cover" && <CoverScreen student={student} setStudent={setStudent} onNext={goNext} />}
+          {step.kind === "field" && (
+            <>
+              <FieldScreen step={step} answers={answers} setAnswers={setAnswers} />
+              <NextBar disabled={!currentStepValid} onNext={goNext} onPrev={goPrev} />
+            </>
+          )}
+          {step.kind === "review" && (
+            <>
+              <ReviewScreen student={student} answers={answers} />
+              {submitErr && <p className="mt-3 text-[13px]" style={{ color: "#C24A4A" }}>{submitErr}</p>}
+              <NextBar disabled={submitting} onNext={submit} onPrev={goPrev} label={submitting ? "제출 중..." : "제출하기"} />
+            </>
+          )}
+          {step.kind === "done" && <DoneScreen student={student} />}
+        </div>
       </div>
     </div>
   );
