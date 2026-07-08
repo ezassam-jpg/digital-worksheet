@@ -104,6 +104,8 @@
   <p class="sub">학번을 입력하면 해당 학습지로 이동합니다</p>
   <label for="studentId">학번</label>
   <input id="studentId" type="text" inputmode="numeric" placeholder="예: 1101" maxlength="10" />
+  <label for="studentName" style="margin-top:14px;">이름</label>
+  <input id="studentName" type="text" placeholder="예: 홍길동" maxlength="10" />
   <button id="goBtn">접속하기</button>
   <p class="err" id="errMsg"></p>
   <p class="loading" id="loadingMsg">확인 중...</p>
@@ -114,12 +116,14 @@
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxcmXYyXc8dUiwaNblyTzXWmBUt5ElMxaNAzFXgvh3Id6wANoXYfPRp_AYa1mBEpcCH/exec";
 
   const input = document.getElementById("studentId");
+  const nameInput = document.getElementById("studentName");
   const btn = document.getElementById("goBtn");
   const errMsg = document.getElementById("errMsg");
   const loadingMsg = document.getElementById("loadingMsg");
 
   async function go() {
     const id = input.value.trim();
+    const name = nameInput.value.trim();
     errMsg.style.display = "none";
     if (!id) return;
 
@@ -141,7 +145,9 @@
         // data.file 예: "v11", "V11", "v11.html" 등 - 소문자로 통일
         let file = data.file.trim().toLowerCase();
         if (!file.endsWith(".html")) file += ".html";
-        window.location.href = file;
+        const params = new URLSearchParams();
+        if (name) params.set("name", name);
+        window.location.href = params.toString() ? `${file}?${params.toString()}` : file;
         return;
       }
     } catch (e) {

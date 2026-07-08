@@ -425,7 +425,8 @@ function TeacherView({ onBack }) {
 /* ---------------- 메인 ---------------- */
 function App() {
   const [stepIndex, setStepIndex] = useState(0);
-  const [student, setStudent] = useState({ classNum: "", number: "", name: "" });
+  const urlParams = new URLSearchParams(window.location.search);
+  const [student, setStudent] = useState({ classNum: "", number: "", name: urlParams.get("name") || "" });
   const [answers, setAnswers] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submitErr, setSubmitErr] = useState("");
