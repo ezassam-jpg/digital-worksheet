@@ -519,6 +519,17 @@ function App() {
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<App />);
+
+// 우클릭 메뉴 및 개발자도구 단축키 방지 (완전 차단은 아니며, 가벼운 방해 장치 수준)
+document.addEventListener("contextmenu", (e) => e.preventDefault());
+document.addEventListener("keydown", (e) => {
+  const key = e.key.toUpperCase();
+  const blocked =
+    key === "F12" ||
+    (e.ctrlKey && e.shiftKey && (key === "I" || key === "J" || key === "C")) ||
+    (e.ctrlKey && key === "U");
+  if (blocked) e.preventDefault();
+});
 </script>
 </body>
 </html>
