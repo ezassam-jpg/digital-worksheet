@@ -145,8 +145,16 @@
         // data.file 예: "v11", "V11", "v11.html" 등 - 소문자로 통일
         let file = data.file.trim().toLowerCase();
         if (!file.endsWith(".html")) file += ".html";
+
+        // 학번 4자리(예: 1101)에서 반/번호 자동 추출: 1자리(학년)+1자리(반)+2자리(번호)
         const params = new URLSearchParams();
         if (name) params.set("name", name);
+        if (/^\d{4}$/.test(id)) {
+          const classNum = id.charAt(1);
+          const number = String(parseInt(id.slice(2), 10));
+          params.set("classNum", classNum);
+          params.set("number", number);
+        }
         window.location.href = params.toString() ? `${file}?${params.toString()}` : file;
         return;
       }
