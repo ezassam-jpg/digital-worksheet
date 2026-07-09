@@ -745,9 +745,14 @@ function Stepper({ current, total }) {
 /* ================================================================== */
 
 function App() {
-  const [phase, setPhase] = useState("cover"); // cover | form | review | done
+  const urlParams = new URLSearchParams(window.location.search);
+  const prefillName = urlParams.get("name") || "";
+  const prefillClass = urlParams.get("classNum") || urlParams.get("classNo") || "";
+  const hasFullInfo = prefillName.trim() !== "" && prefillClass.trim() !== "";
+
+  const [phase, setPhase] = useState(hasFullInfo ? "form" : "cover"); // cover | form | review | done
   const [stepIndex, setStepIndex] = useState(0);
-  const [student, setStudent] = useState({ classNo: "", name: "" });
+  const [student, setStudent] = useState({ classNo: prefillClass, name: prefillName });
   const [answers, setAnswers] = useState({});
   const [submittedAt, setSubmittedAt] = useState(null);
   const [dateStamp] = useState(todayString());
