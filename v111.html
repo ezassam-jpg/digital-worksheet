@@ -242,6 +242,12 @@ body { margin: 0; }
           min-width: 70px;
         }
         .blank-input:focus { outline: none; border-bottom-color: var(--indigo-700); }
+        .blank-input-wrap { position: relative; display: inline-flex; align-items: center; }
+        .blank-input.is-correct { background: #e4f3e8; border-bottom-color: #3a7a4e; }
+        .blank-input.is-wrong { background: #fbe8e4; border-bottom-color: var(--danger); }
+        .blank-mark { margin-left: 4px; font-size: 13px; font-weight: 700; }
+        .blank-mark.ok { color: #3a7a4e; }
+        .blank-mark.no { color: var(--danger); }
 
         table.doc-table {
           width: 100%;
@@ -262,6 +268,7 @@ body { margin: 0; }
         }
         table.doc-table td.label-cell { font-weight: 600; background: #fcfcfa; width: 40%; }
         table.doc-table .blank-input { width: 100%; min-width: unset; }
+        table.doc-table .blank-input-wrap { width: 100%; }
 
         .tech-group { margin-bottom: 18px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
         .tech-group:last-child { margin-bottom: 0; }
@@ -475,16 +482,19 @@ const STEPS = [
         template:
           "디지털 기술은 정보를 ___하고 ___하며 ___하는 장치를 연구하고 개발하는 것에 관련된 기술 전반을 일컫는다.",
         keys: ["b1", "b2", "b3"],
+        answers: ["처리", "저장", "전송"],
       },
       {
         template:
           "현대 사회의 디지털 기술은 언제 어디서나 접속이 가능한 정보 통신 환경인 ___에 기반을 둔다.",
         keys: ["b4"],
+        answers: ["유비쿼터스"],
       },
       {
         template:
           "스마트폰에 내장된 각종 센서가 수집한 정보가 쌓여 ___가 되며, ___은 이 방대한 양의 데이터 중에서 의미 있는 정보가 무엇인지 분석한다.",
         keys: ["b5", "b6"],
+        answers: ["빅데이터", "인공지능"],
       },
     ],
   },
@@ -564,10 +574,10 @@ const STEPS = [
     },
     columnHeader: ["기술", "교과서에 나온 예시"],
     rows: [
-      { key: "disp_desc", label: "투명 디스플레이" },
-      { key: "auto_desc", label: "자율주행" },
-      { key: "wearable_desc", label: "웨어러블 기기" },
-      { key: "metaverse_desc", label: "메타버스" },
+      { key: "disp_desc", label: "투명 모니터", answer: "투명 모니터를 적용한 열차 창문" },
+      { key: "auto_desc", label: "자율주행", answer: "자율주행 트랙터" },
+      { key: "wearable_desc", label: "웨어러블 기기", answer: "디지털 헬스케어 기기" },
+      { key: "metaverse_desc", label: "메타버스", answer: "국립 대한민국 임시정부기념관 메타버스" },
     ],
   },
   {
@@ -578,10 +588,10 @@ const STEPS = [
     intro: { heading: "다음 설명에 해당하는 기술을 앞에서 읽은 내용에서 찾아 써 보자." },
     columnHeader: ["설명", "기술"],
     rows: [
-      { key: "match1", label: "일상생활에서 사용되는 여러 가지 사물이 네트워크로 연결되는 기술" },
-      { key: "match2", label: "외장 하드나 USB 없이도 인터넷으로 데이터를 저장하고 사용할 수 있게 하는 기술" },
-      { key: "match3", label: "일상의 다양한 활동을 데이터로 기록하고 분석하여 문제를 해결하는 기술" },
-      { key: "match4", label: "사람만이 할 수 있다고 여겨졌던 일을 컴퓨터도 할 수 있게 하는 기술" },
+      { key: "match1", label: "일상생활에서 사용되는 여러 가지 사물이 네트워크로 연결되는 기술", answer: "사물 인터넷" },
+      { key: "match2", label: "외장 하드나 USB 없이도 인터넷으로 데이터를 저장하고 사용할 수 있게 하는 기술", answer: "클라우드" },
+      { key: "match3", label: "일상의 다양한 활동을 데이터로 기록하고 분석하여 문제를 해결하는 기술", answer: "빅데이터" },
+      { key: "match4", label: "사람만이 할 수 있다고 여겨졌던 일을 컴퓨터도 할 수 있게 하는 기술", answer: "인공지능" },
     ],
   },
   {
@@ -598,7 +608,7 @@ const STEPS = [
         ["클라우드", "인터넷을 통해 데이터를 저장하고 사용할 수 있도록 하는 기술"],
         ["빅데이터", "일상의 다양한 활동을 데이터로 기록하고 분석하여 문제를 해결하는 기술"],
         ["인공지능", "방대한 데이터 중에서 의미 있는 정보를 찾아 사람이 하던 일을 대신할 수 있게 하는 기술"],
-        ["투명 디스플레이", "모니터처럼 정보를 확인할 수 있으면서 뒤쪽 모습도 비치는 투명한 형태의 액정 기술"],
+        ["투명 모니터", "모니터처럼 정보를 확인할 수 있으면서 뒤쪽 모습도 비치는 투명한 형태의 액정 기술"],
         ["자율주행", "운전자가 직접 조작하지 않아도 차량이 외부 환경을 인지·판단하여 스스로 목적지까지 주행하는 기술"],
         ["웨어러블", "전자 기기를 손목, 팔, 머리 등 몸에 지니고 다닐 수 있는 기기로 만드는 기술"],
         ["메타버스", "메타(meta)와 유니버스(universe)의 합성어로, 3차원 가상 공간에서 현실 세계와 같은 사회·문화 활동이 이루어지는 기술"],
@@ -632,6 +642,35 @@ STEPS.forEach((step) => {
 });
 const ALL_FIELD_KEYS = Object.keys(FIELD_META);
 
+/* ---------- 정답 데이터 (교과서 원문 그대로 옮겨야 하는 문항만) ---------- */
+const ANSWER_KEY = {};
+STEPS.forEach((step) => {
+  if (step.type === "paragraphFill") {
+    step.lines.forEach((line) => {
+      if (line.answers) {
+        line.keys.forEach((k, i) => {
+          ANSWER_KEY[k] = line.answers[i];
+        });
+      }
+    });
+  } else if (step.type === "tableSingle") {
+    step.rows.forEach((r) => {
+      if (r.answer) ANSWER_KEY[r.key] = r.answer;
+    });
+  }
+});
+
+/* 공백만 무시하고 나머지는 완전히 일치해야 정답 (교과서 원문 그대로 옮기는 문항용) */
+function normalizeForCheck(v) {
+  return (v || "").replace(/\s+/g, "");
+}
+function isExactMatch(value, correctAnswer) {
+  return normalizeForCheck(value) === normalizeForCheck(correctAnswer);
+}
+function hasAnswerKey(key) {
+  return Object.prototype.hasOwnProperty.call(ANSWER_KEY, key);
+}
+
 /* ---------- 유틸 ---------- */
 function todayString() {
   const d = new Date();
@@ -656,21 +695,29 @@ function csvEscape(v) {
 }
 
 /* ---------- 공통 입력 컴포넌트 ---------- */
-function BlankInput({ value, onChange, placeholder, width }) {
+function BlankInput({ value, onChange, placeholder, width, correctAnswer }) {
+  const hasValue = (value || "").trim().length > 0;
+  const checked = correctAnswer !== undefined && hasValue;
+  const correct = checked && isExactMatch(value, correctAnswer);
+  const wrong = checked && !correct;
   return (
-    <input
-      type="text"
-      value={value || ""}
-      onChange={(e) => onChange(e.target.value)}
-      onPaste={blockPaste}
-      onCopy={blockPaste}
-      onCut={blockPaste}
-      onContextMenu={blockContext}
-      placeholder={placeholder || ""}
-      className="blank-input"
-      style={width ? { width } : undefined}
-      autoComplete="off"
-    />
+    <span className="blank-input-wrap">
+      <input
+        type="text"
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        onPaste={blockPaste}
+        onCopy={blockPaste}
+        onCut={blockPaste}
+        onContextMenu={blockContext}
+        placeholder={placeholder || ""}
+        className={`blank-input ${correct ? "is-correct" : ""} ${wrong ? "is-wrong" : ""}`}
+        style={width ? { width } : undefined}
+        autoComplete="off"
+      />
+      {correct && <span className="blank-mark ok">✓</span>}
+      {wrong && <span className="blank-mark no">✕</span>}
+    </span>
   );
 }
 
@@ -698,7 +745,7 @@ function AnswerTextarea({ value, onChange, minLength, compact }) {
 }
 
 /* 문장 속 빈칸(___) 렌더링 */
-function FillLine({ template, keys, values, onChange }) {
+function FillLine({ template, keys, answers, values, onChange }) {
   const parts = template.split("___");
   return (
     <p className="fill-line">
@@ -710,6 +757,7 @@ function FillLine({ template, keys, values, onChange }) {
               value={values[keys[i]]}
               onChange={(v) => onChange(keys[i], v)}
               width="110px"
+              correctAnswer={answers ? answers[i] : undefined}
             />
           )}
         </React.Fragment>
@@ -800,11 +848,17 @@ function App() {
     }
     if (step.type === "paragraphFill") {
       return step.lines.every((line) =>
-        line.keys.every((k) => (answers[k] || "").trim().length >= 1)
+        line.keys.every((k, i) => {
+          if (line.answers) return isExactMatch(answers[k], line.answers[i]);
+          return (answers[k] || "").trim().length >= 1;
+        })
       );
     }
     if (step.type === "tableSingle") {
-      return step.rows.every((r) => (answers[r.key] || "").trim().length >= 1);
+      return step.rows.every((r) => {
+        if (r.answer) return isExactMatch(answers[r.key], r.answer);
+        return (answers[r.key] || "").trim().length >= 1;
+      });
     }
     if (step.type === "tableText") {
       const min = step.minLength || 10;
@@ -1244,6 +1298,7 @@ function StepRenderer({ step, answers, setAnswer }) {
             key={i}
             template={line.template}
             keys={line.keys}
+            answers={line.answers}
             values={answers}
             onChange={setAnswer}
           />
@@ -1265,6 +1320,7 @@ function StepRenderer({ step, answers, setAnswer }) {
                   <BlankInput
                     value={answers[r.key]}
                     onChange={(v) => setAnswer(r.key, v)}
+                    correctAnswer={r.answer}
                   />
                 </td>
               </tr>
