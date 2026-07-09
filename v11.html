@@ -455,6 +455,7 @@ function App() {
     setSubmitting(true);
     setSubmitErr("");
     const payload = {
+      version: "v11",
       grade: "1학년", classNum: student.classNum, number: student.number, name: student.name,
       ...answers, submittedAt: new Date().toLocaleString("ko-KR"),
     };
