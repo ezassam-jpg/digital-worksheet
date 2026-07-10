@@ -487,17 +487,32 @@ const STEPS = [
     id: "cases",
     label: "그림으로 보는 디지털 기술",
     unitTag: "211쪽 [그림 Ⅴ-1]",
-    type: "tableSingle",
+    type: "paragraphFill",
     intro: {
       heading:
-        "[그림 Ⅴ-1] 디지털 기술로 변화된 삶의 모습이다. 교과서에 나온 삶의 모습의 예를 그대로 써 보자.",
+        "[그림 Ⅴ-1] 디지털 기술로 변화된 삶의 모습이다. 빈칸에 알맞은 말을 교과서에 나온 그대로 써 보자.",
     },
-    columnHeader: ["번호", "디지털 기술로 변화된 삶의 모습"],
-    rows: [
-      { key: "case1", label: "① 스마트폰 사진", answer: "스마트폰으로 원하는 물건을 산다." },
-      { key: "case2", label: "② 서빙 로봇 사진", answer: "로봇이 사람들과 부딪히지 않고 음식을 서빙해 준다." },
-      { key: "case3", label: "③ 영상 통화 사진", answer: "멀리 있어도 얼굴을 보며 영상 통화를 한다." },
-      { key: "case4", label: "④ VR 기기 사진", answer: "실내에서 VR 기기로 놀이동산을 체험한다." },
+    lines: [
+      {
+        template: "1번  ___으로 원하는 물건을 산다.",
+        keys: ["case1"],
+        answers: ["스마트폰"],
+      },
+      {
+        template: "2번  ___이 사람들과 부딪히지 않고 음식을 서빙해 준다.",
+        keys: ["case2"],
+        answers: ["로봇"],
+      },
+      {
+        template: "3번  멀리 있어도 얼굴을 보며 ___를 한다.",
+        keys: ["case3"],
+        answers: ["영상 통화"],
+      },
+      {
+        template: "4번  실내에서 ___로 놀이동산을 체험한다.",
+        keys: ["case4"],
+        answers: ["VR 기기"],
+      },
     ],
   },
   {
