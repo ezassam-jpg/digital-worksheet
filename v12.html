@@ -229,6 +229,12 @@ body { margin: 0; }
           line-height: 2.4;
           margin: 0 0 10px;
         }
+        .fill-section-title {
+          font-weight: 800;
+          color: var(--indigo-700);
+          margin: 18px 0 4px;
+          font-size: 15px;
+        }
         .blank-input {
           border: none;
           border-bottom: 2px solid var(--amber-500);
@@ -525,16 +531,18 @@ const STEPS = [
     },
     lines: [
       {
+        sectionTitle: "① 사물 인터넷",
         template:
           "일상생활에서 사용되는 여러 가지 사물이 ___을 통해 일종의 단말기가 되어 사물끼리 ___를 만들 수 있게 되었다.",
         keys: ["c1", "c2"],
         answers: ["사물 인터넷", "네트워크"],
       },
       {
+        sectionTitle: "② 클라우드",
         template:
-          "___는 외장 하드 디스크, USB 등의 이동형 저장장치를 사용하여 데이터를 전달하던 방식의 모습을 바꾸어 놓았다.",
-        keys: ["c3"],
-        answers: ["클라우드"],
+          "클라우드는 외장 하드 디스크, USB 등의 ___를 사용하여 ___를 전달하던 방식의 모습을 바꾸어 놓았다.",
+        keys: ["c3", "c4"],
+        answers: ["이동형 저장장치", "데이터"],
       },
     ],
   },
@@ -542,22 +550,36 @@ const STEPS = [
     id: "bigdata_ai",
     label: "빅데이터 · 인공지능",
     unitTag: "213쪽",
-    type: "techRead",
-    minLength: 15,
-    techs: [
+    type: "paragraphFill",
+    intro: {
+      heading: "교과서 213쪽 본문을 읽고 핵심 단어를 채워 보자.",
+    },
+    lines: [
       {
-        name: "③ 빅데이터",
-        paragraph:
-          "일상의 다양한 활동을 디지털 데이터로 기록할 수 있게 되면서, 빅데이터를 기반으로 문제를 해결하는 사례가 늘어나고 있다. 특정 질환을 앓는 사람들의 행동 데이터를 분석하여 병의 원인을 찾는 것이 대표적인 예이다.",
-        key: "bigdata_summary",
-        prompt: "위 내용을 참고하여 빅데이터가 우리 사회를 어떻게 변화시켰는지 정리해 써 보자.",
+        sectionTitle: "③ 빅데이터",
+        template:
+          "일상의 다양한 활동을 디지털 데이터로 기록할 수 있게 되면서, ___를 기반으로 문제를 해결하는 사례가 늘어나고 있다.",
+        keys: ["d1"],
+        answers: ["빅데이터"],
       },
       {
-        name: "④ 인공지능",
-        paragraph:
-          "인공지능은 사람만이 할 수 있다고 여겨졌던 일들을 컴퓨터도 할 수 있다는 가능성을 보여 주고 있다. 특히 뛰어난 성능을 지닌 딥러닝 기술은 환경, 의료, 제조, 교육 등 다양한 분야에서 활용되고 있다.",
-        key: "ai_summary",
-        prompt: "위 내용을 참고하여 인공지능이 우리 사회를 어떻게 변화시켰는지 정리해 써 보자.",
+        template:
+          "특정 질환을 앓는 사람들의 ___를 분석하여 병의 원인을 찾는 것이 대표적인 예이다.",
+        keys: ["d2"],
+        answers: ["행동 데이터"],
+      },
+      {
+        sectionTitle: "④ 인공지능",
+        template:
+          "___은 사람만이 할 수 있다고 여겨졌던 일들을 컴퓨터도 할 수 있다는 가능성을 보여 주고 있다.",
+        keys: ["d3"],
+        answers: ["인공지능"],
+      },
+      {
+        template:
+          "특히 뛰어난 성능을 지닌 ___ 기술은 환경, 의료, 제조, 교육 등 다양한 분야에서 활용되고 있다.",
+        keys: ["d4"],
+        answers: ["딥러닝"],
       },
     ],
   },
@@ -646,7 +668,7 @@ STEPS.forEach((step) => {
 
 /* 공백만 무시하고 나머지는 완전히 일치해야 정답 (교과서 원문 그대로 옮기는 문항용) */
 function normalizeForCheck(v) {
-  return (v || "").replace(/\s+/g, "");
+  return (v || "").replace(/\s+/g, "").toLowerCase();
 }
 function isExactMatch(value, correctAnswer) {
   return normalizeForCheck(value) === normalizeForCheck(correctAnswer);
@@ -1278,14 +1300,18 @@ function StepRenderer({ step, answers, setAnswer }) {
 
       {step.type === "paragraphFill" &&
         step.lines.map((line, i) => (
-          <FillLine
-            key={i}
-            template={line.template}
-            keys={line.keys}
-            answers={line.answers}
-            values={answers}
-            onChange={setAnswer}
-          />
+          <React.Fragment key={i}>
+            {line.sectionTitle && (
+              <p className="fill-section-title">{line.sectionTitle}</p>
+            )}
+            <FillLine
+              template={line.template}
+              keys={line.keys}
+              answers={line.answers}
+              values={answers}
+              onChange={setAnswer}
+            />
+          </React.Fragment>
         ))}
 
       {step.type === "tableSingle" && (
