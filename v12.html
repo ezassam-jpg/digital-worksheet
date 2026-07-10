@@ -802,11 +802,17 @@ function App() {
   const urlParams = new URLSearchParams(window.location.search);
   const prefillName = urlParams.get("name") || "";
   const prefillClass = urlParams.get("classNum") || urlParams.get("classNo") || "";
-  const hasFullInfo = prefillName.trim() !== "" && prefillClass.trim() !== "";
+  const prefillNumber = urlParams.get("number") || "";
+  const hasFullInfo =
+    prefillName.trim() !== "" && prefillClass.trim() !== "" && prefillNumber.trim() !== "";
 
   const [phase, setPhase] = useState(hasFullInfo ? "form" : "cover"); // cover | form | review | done
   const [stepIndex, setStepIndex] = useState(0);
-  const [student, setStudent] = useState({ classNo: prefillClass, name: prefillName });
+  const [student, setStudent] = useState({
+    classNum: prefillClass,
+    number: prefillNumber,
+    name: prefillName,
+  });
   const [answers, setAnswers] = useState({});
   const [submittedAt, setSubmittedAt] = useState(null);
   const [dateStamp] = useState(todayString());
@@ -878,7 +884,9 @@ function App() {
   }, [step, answers]);
 
   const coverValid =
-    student.classNo.trim().length > 0 && student.name.trim().length > 0;
+    student.classNum.trim().length > 0 &&
+    student.number.trim().length > 0 &&
+    student.name.trim().length > 0;
 
   function goNext() {
     if (stepIndex < STEPS.length - 1) {
@@ -907,8 +915,10 @@ function App() {
       }
       const submittedTime = nowTimeString();
       const payload = {
-        date: dateStamp,
-        classNo: student.classNo,
+        version: "v12",
+        grade: GRADE_LABEL,
+        classNum: student.classNum,
+        number: student.number,
         name: student.name,
         submittedAt: submittedTime,
         ...answers,
@@ -941,7 +951,7 @@ function App() {
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || "불러오기 실패");
       const results = (data.rows || []).sort((a, b) =>
-        a.submittedAt < b.submittedAt ? 1 : -1
+        a["제출시각"] < b["제출시각"] ? 1 : -1
       );
       setSubmissions(results);
     } catch (e) {
@@ -964,16 +974,16 @@ function App() {
 
   function downloadCSV() {
     const headers = [
-      "날짜",
       "반",
+      "번호",
       "이름",
       ...ALL_FIELD_KEYS.map((k) => `${FIELD_META[k].section}_${FIELD_META[k].label}`),
       "제출시각",
     ];
     const rows = submissions.map((s) => {
-      const base = [s.date, s.classNo, s.name];
+      const base = [s["반"], s["번호"], s["이름"]];
       const ans = ALL_FIELD_KEYS.map((k) => s[k] || "");
-      return [...base, ...ans, s.submittedAt];
+      return [...base, ...ans, s["제출시각"]];
     });
     const csvContent =
       "\uFEFF" +
@@ -1027,13 +1037,25 @@ function App() {
                   <div className="field-box">
                     <label>반</label>
                     <input
-                      value={student.classNo}
+                      value={student.classNum}
                       onChange={(e) =>
-                        setStudent((s) => ({ ...s, classNo: e.target.value }))
+                        setStudent((s) => ({ ...s, classNum: e.target.value }))
                       }
                       onPaste={blockPaste}
                       onContextMenu={blockContext}
                       placeholder="예: 3"
+                    />
+                  </div>
+                  <div className="field-box">
+                    <label>번호</label>
+                    <input
+                      value={student.number}
+                      onChange={(e) =>
+                        setStudent((s) => ({ ...s, number: e.target.value }))
+                      }
+                      onPaste={blockPaste}
+                      onContextMenu={blockContext}
+                      placeholder="예: 12"
                     />
                   </div>
                   <div className="field-box" style={{ gridColumn: "1 / -1" }}>
@@ -1202,7 +1224,7 @@ function App() {
             )}
 
             {submissions.map((s, idx) => {
-              const key = `${s.date}-${s.classNo}-${s.name}-${idx}`;
+              const key = `${s["반"]}-${s["번호"]}-${s["이름"]}-${idx}`;
               const isOpen = !!expanded[key];
               return (
                 <div className="sub-card" key={key}>
@@ -1211,10 +1233,10 @@ function App() {
                     onClick={() => setExpanded((e) => ({ ...e, [key]: !isOpen }))}
                   >
                     <div className="sub-meta">
-                      <b>{s.name}</b> · {s.classNo}반 · {s.date}
+                      <b>{s["이름"]}</b> · {s["반"]}반 {s["번호"]}번
                     </div>
                     <div className="sub-time">
-                      제출 {s.submittedAt} {isOpen ? "▲" : "▼"}
+                      제출 {s["제출시각"]} {isOpen ? "▲" : "▼"}
                     </div>
                   </div>
                   {isOpen && (
@@ -1405,7 +1427,7 @@ function ReviewScreen({
         <div className="review-item">
           <span className="rk">학년/반/이름 : </span>
           <span className="rv">
-            {GRADE_LABEL} {student.classNo}반 {student.name}
+            {GRADE_LABEL} {student.classNum}반 {student.number}번 {student.name}
           </span>
         </div>
         <div className="review-item">
