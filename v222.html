@@ -1,0 +1,1376 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>정보 보안 기술과 실천 방법 - 온라인 학습지 (V-2-2b)</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+body { margin: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+
+        :root {
+          --indigo-900: #1b1f4b;
+          --indigo-800: #232a63;
+          --indigo-700: #2c3577;
+          --indigo-100: #e8e9f6;
+          --indigo-050: #f3f3fb;
+          --amber-600: #b4841a;
+          --amber-500: #d4a72c;
+          --amber-100: #fbf0d2;
+          --paper: #faf9f5;
+          --ink: #22242f;
+          --ink-soft: #565b72;
+          --line: #d9dbe8;
+          --danger: #b3432f;
+        }
+        * { box-sizing: border-box; }
+        .app-root {
+          font-family: 'Noto Sans KR', sans-serif;
+          background: var(--paper);
+          background-image:
+            radial-gradient(circle at 1px 1px, rgba(27,31,75,0.06) 1px, transparent 0);
+          background-size: 22px 22px;
+          color: var(--ink);
+          min-height: 100vh;
+          padding: 28px 16px 80px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        h1, h2, h3, .serif { font-family: 'Noto Serif KR', serif; }
+
+        .doc-shell {
+          width: 100%;
+          max-width: 720px;
+        }
+
+        /* ---- 상단 문서 헤더 (관공서 서류 느낌) ---- */
+        .doc-header {
+          background: var(--indigo-900);
+          color: #fff;
+          border-radius: 14px 14px 0 0;
+          padding: 18px 24px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          position: relative;
+          overflow: hidden;
+        }
+        .doc-header::after {
+          content: "";
+          position: absolute;
+          right: -40px; top: -40px;
+          width: 140px; height: 140px;
+          border-radius: 50%;
+          background: rgba(212,167,44,0.15);
+        }
+        .doc-header .doc-no {
+          font-size: 11px;
+          letter-spacing: 0.06em;
+          color: var(--amber-100);
+          opacity: 0.85;
+        }
+        .doc-header .unit-path {
+          font-size: 12px;
+          color: #cfd2ee;
+          margin-top: 6px;
+        }
+        .doc-header .unit-title {
+          font-size: 22px;
+          font-weight: 700;
+          margin-top: 4px;
+        }
+        .seal {
+          width: 58px; height: 58px;
+          border-radius: 50%;
+          border: 2px solid var(--amber-500);
+          display: flex; align-items: center; justify-content: center;
+          flex-direction: column;
+          color: var(--amber-100);
+          font-size: 11px;
+          font-weight: 700;
+          transform: rotate(-8deg);
+          flex-shrink: 0;
+          z-index: 1;
+        }
+        .seal .seal-code {
+          font-size: 13px;
+          font-family: 'Noto Serif KR', serif;
+        }
+
+        /* ---- 천공 스테퍼 ---- */
+        .stepper-shell {
+          background: var(--indigo-800);
+          padding: 14px 24px 18px;
+          color: #fff;
+        }
+        .punch-row {
+          display: flex;
+          gap: 5px;
+          margin-bottom: 8px;
+          flex-wrap: wrap;
+        }
+        .punch {
+          width: 8px; height: 8px;
+          border-radius: 50%;
+          background: rgba(255,255,255,0.18);
+        }
+        .punch.punched { background: var(--amber-500); }
+        .stepper-track {
+          height: 4px;
+          background: rgba(255,255,255,0.15);
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        .stepper-fill {
+          height: 100%;
+          background: var(--amber-500);
+          transition: width 0.3s ease;
+        }
+        .stepper-label {
+          margin-top: 8px;
+          font-size: 12px;
+          letter-spacing: 0.04em;
+          color: var(--amber-100);
+        }
+        .step-no { font-weight: 700; }
+
+        /* ---- 본문 카드 ---- */
+        .doc-card {
+          background: #fff;
+          border: 1px solid var(--line);
+          border-top: none;
+          padding: 26px 24px 30px;
+          box-shadow: 0 12px 30px rgba(27,31,75,0.06);
+        }
+        .doc-card.last { border-radius: 0 0 14px 14px; }
+
+        .section-tag {
+          display: inline-block;
+          font-size: 11px;
+          background: var(--indigo-100);
+          color: var(--indigo-700);
+          padding: 3px 10px;
+          border-radius: 3px;
+          font-weight: 600;
+          letter-spacing: 0.03em;
+          margin-bottom: 10px;
+        }
+        .section-title {
+          font-size: 19px;
+          font-weight: 700;
+          margin: 0 0 14px;
+          color: var(--indigo-900);
+          border-bottom: 2px solid var(--indigo-900);
+          padding-bottom: 10px;
+        }
+
+        .intro-box {
+          background: var(--indigo-050);
+          border-left: 3px solid var(--amber-500);
+          padding: 12px 16px;
+          border-radius: 4px;
+          margin-bottom: 18px;
+          font-size: 14px;
+          color: var(--ink-soft);
+        }
+        .intro-box .heading {
+          font-weight: 700;
+          color: var(--indigo-900);
+          margin-bottom: 4px;
+          display: block;
+        }
+        .intro-box ul { margin: 6px 0 0; padding-left: 18px; }
+        .intro-box li { margin-bottom: 3px; }
+        .intro-note {
+          margin-top: 8px;
+          font-weight: 600;
+          color: var(--amber-600);
+        }
+
+        .q-block { margin-bottom: 20px; }
+        .q-block:last-child { margin-bottom: 0; }
+        .q-prompt {
+          font-size: 14.5px;
+          font-weight: 600;
+          margin-bottom: 8px;
+          color: var(--ink);
+        }
+
+        .answer-wrap { position: relative; }
+        .answer-textarea {
+          width: 100%;
+          border: 1.5px solid var(--line);
+          border-radius: 8px;
+          padding: 12px 14px;
+          font-size: 14px;
+          font-family: inherit;
+          resize: vertical;
+          background: #fffdf8;
+          transition: border-color 0.2s;
+        }
+        .answer-textarea:focus {
+          outline: none;
+          border-color: var(--indigo-700);
+        }
+        .char-count {
+          text-align: right;
+          font-size: 11.5px;
+          color: var(--danger);
+          margin-top: 4px;
+        }
+        .char-count.ok { color: #3a7a4e; }
+
+        .fill-line {
+          font-size: 15px;
+          line-height: 2.4;
+          margin: 0 0 10px;
+        }
+        .fill-section-title {
+          font-weight: 800;
+          color: var(--indigo-700);
+          margin: 18px 0 4px;
+          font-size: 15px;
+        }
+        .fill-page-note {
+          font-weight: 500;
+          color: var(--ink-soft);
+          font-size: 11.5px;
+          margin-left: 6px;
+        }
+        .blank-input {
+          border: none;
+          border-bottom: 2px solid var(--amber-500);
+          background: var(--amber-100);
+          text-align: center;
+          font-size: 14px;
+          font-family: inherit;
+          padding: 3px 6px;
+          margin: 0 3px;
+          border-radius: 3px 3px 0 0;
+          min-width: 70px;
+        }
+        .blank-input:focus { outline: none; border-bottom-color: var(--indigo-700); }
+        .blank-input-wrap { position: relative; display: inline-flex; align-items: center; }
+        .blank-input.is-correct { background: #e4f3e8; border-bottom-color: #3a7a4e; }
+        .blank-input.is-wrong { background: #fbe8e4; border-bottom-color: var(--danger); }
+        .blank-mark { margin-left: 4px; font-size: 13px; font-weight: 700; }
+        .blank-mark.ok { color: #3a7a4e; }
+        .blank-mark.no { color: var(--danger); }
+
+        table.doc-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 13.5px;
+        }
+        table.doc-table th, table.doc-table td {
+          border: 1px solid var(--line);
+          padding: 10px 12px;
+          text-align: left;
+          vertical-align: middle;
+        }
+        table.doc-table th {
+          background: var(--indigo-050);
+          color: var(--indigo-900);
+          font-weight: 700;
+          font-size: 12.5px;
+        }
+        table.doc-table td.label-cell { font-weight: 600; background: #fcfcfa; width: 40%; }
+        table.doc-table .blank-input { width: 100%; min-width: unset; }
+        table.doc-table .blank-input-wrap { width: 100%; }
+
+        /* ---- 표지 ---- */
+        .cover-card { text-align: left; }
+        .cover-title { font-size: 26px; font-weight: 700; color: var(--indigo-900); margin: 4px 0 2px; }
+        .cover-sub { font-size: 13px; color: var(--ink-soft); margin-bottom: 22px; }
+        .cover-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+          margin-bottom: 20px;
+        }
+        .field-box label {
+          display: block;
+          font-size: 12px;
+          font-weight: 700;
+          color: var(--indigo-700);
+          margin-bottom: 6px;
+          letter-spacing: 0.02em;
+        }
+        .field-box input, .field-box .fixed-box {
+          width: 100%;
+          border: 1.5px solid var(--line);
+          border-radius: 8px;
+          padding: 11px 12px;
+          font-size: 14px;
+          font-family: inherit;
+        }
+        .field-box .fixed-box {
+          background: #eceef2;
+          color: #6b7080;
+        }
+        .field-box input:focus { outline: none; border-color: var(--indigo-700); }
+
+        .btn-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 26px; }
+        .btn {
+          font-family: inherit;
+          font-size: 14.5px;
+          font-weight: 700;
+          padding: 12px 22px;
+          border-radius: 8px;
+          border: none;
+          cursor: pointer;
+          transition: transform 0.15s, opacity 0.15s;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary {
+          background: var(--indigo-900);
+          color: #fff;
+          margin-left: auto;
+        }
+        .btn-primary:disabled {
+          background: #b9bcd1;
+          cursor: not-allowed;
+        }
+        .btn-ghost {
+          background: transparent;
+          color: var(--indigo-700);
+          border: 1.5px solid var(--indigo-100);
+        }
+        .btn-amber {
+          background: var(--amber-500);
+          color: var(--indigo-900);
+        }
+
+        .review-section { margin-bottom: 18px; border-bottom: 1px dashed var(--line); padding-bottom: 14px; }
+        .review-section:last-child { border-bottom: none; }
+        .review-section-title {
+          font-size: 13px; font-weight: 700; color: var(--indigo-700);
+          display: flex; justify-content: space-between; align-items: center;
+          margin-bottom: 8px;
+        }
+        .review-item { font-size: 13.5px; margin-bottom: 6px; }
+        .review-item .rk { color: var(--ink-soft); }
+        .review-item .rv { color: var(--ink); font-weight: 500; }
+        .link-btn {
+          background: none; border: none; color: var(--amber-600);
+          font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: underline;
+        }
+
+        .done-wrap { text-align: center; padding: 50px 20px; }
+        .done-badge {
+          width: 84px; height: 84px; border-radius: 50%;
+          background: var(--indigo-900);
+          color: var(--amber-100);
+          display: flex; align-items: center; justify-content: center;
+          margin: 0 auto 18px; font-size: 36px;
+        }
+
+        .footer-note {
+          margin-top: 22px;
+          text-align: center;
+          font-size: 11.5px;
+          color: #9599ad;
+        }
+        .teacher-link {
+          background: none; border: none; color: #9599ad; font-size: 11.5px;
+          text-decoration: underline; cursor: pointer; margin-top: 6px;
+        }
+
+        /* ---- 교사용 모달 / 대시보드 ---- */
+        .modal-overlay {
+          position: fixed; inset: 0; background: rgba(20,22,50,0.55);
+          display: flex; align-items: center; justify-content: center;
+          padding: 20px; z-index: 50;
+        }
+        .modal-box {
+          background: #fff; border-radius: 12px; padding: 24px;
+          width: 100%; max-width: 380px;
+        }
+        .modal-box h3 { margin: 0 0 6px; color: var(--indigo-900); }
+        .modal-box p { font-size: 12.5px; color: var(--ink-soft); margin: 0 0 14px; }
+        .modal-box input {
+          width: 100%; border: 1.5px solid var(--line); border-radius: 8px;
+          padding: 10px 12px; font-size: 14px; margin-bottom: 10px;
+        }
+        .modal-error { color: var(--danger); font-size: 12px; margin-bottom: 8px; }
+        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+        .dash-shell { width: 100%; max-width: 900px; }
+        .dash-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+        .dash-title { font-size: 20px; font-weight: 700; color: var(--indigo-900); }
+        .dash-count { font-size: 12.5px; color: var(--ink-soft); }
+        .sub-card {
+          background: #fff; border: 1px solid var(--line); border-radius: 10px;
+          margin-bottom: 10px; overflow: hidden;
+        }
+        .sub-row {
+          display: flex; justify-content: space-between; align-items: center;
+          padding: 12px 16px; cursor: pointer; gap: 10px; flex-wrap: wrap;
+        }
+        .sub-row:hover { background: var(--indigo-050); }
+        .sub-meta { font-size: 13px; color: var(--ink); }
+        .sub-meta b { color: var(--indigo-900); }
+        .sub-time { font-size: 11.5px; color: var(--ink-soft); }
+        .sub-detail { padding: 4px 18px 16px; border-top: 1px dashed var(--line); }
+        .sub-detail .review-section-title { color: var(--indigo-700); }
+
+        @media (max-width: 520px) {
+          .cover-grid { grid-template-columns: 1fr; }
+          .doc-header { flex-direction: column; gap: 10px; }
+        }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+
+/* ============================================================
+   V-2-2b_정보보안기술과실천방법.html
+   고등학교 공통과목 '정보' (2022개정 교육과정)
+   Ⅴ. 디지털 문화 > 2. 정보 보호와 보안 > 2-2 정보 보안 기술과 실천 방법
+   ============================================================ */
+
+/* ---------- 교사 설정값 (필요시 수정) ---------- */
+const GRADE_LABEL = "고등학교 1학년"; // 학년 고정 표시
+const UNIT_CODE = "V-2-2b";
+const UNIT_PATH = "Ⅴ. 디지털 문화 > 2. 정보 보호와 보안";
+const UNIT_TITLE = "2-2 정보 보안 기술과 실천 방법";
+const TEACHER_CODE = "2026INFO"; // 교사용 확인 코드 (필요시 변경)
+const DOC_NO = `INFO-${UNIT_CODE}-2026`;
+
+/* ⚠️ 여기에 배포한 Google Apps Script 웹 앱 URL을 붙여넣으세요. */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxcmXYyXc8dUiwaNblyTzXWmBUt5ElMxaNAzFXgvh3Id6wANoXYfPRp_AYa1mBEpcCH/exec";
+
+/* ---------- 문항 그룹 정의 (교과서 230~231쪽 원문 기준) ---------- */
+const STEPS = [
+  {
+    id: "tech",
+    label: "정보 보안 기술이란 무엇일까?",
+    unitTag: "230쪽",
+    type: "paragraphFill",
+    intro: {
+      heading: "교과서 230쪽 내용을 정리했어요. 빈칸을 채워 보자.",
+    },
+    lines: [
+      {
+        template: "대표적인 정보 보안 기술 : ___, ___, ___",
+        keys: ["b1", "b2", "b3"],
+        answers: ["암호화", "방화벽", "전자 서명"],
+      },
+      {
+        sectionTitle: "암호화",
+        template: "데이터 전송 시 불법적 방법으로 데이터가 ___되거나 ___되는 상황에 대비해 데이터를 ___하여 보내는 방법",
+        keys: ["a1", "a2", "a3"],
+        answers: ["탈취", "변경", "변환"],
+      },
+      {
+        template: "정보를 타인이 알아볼 수 없는 ___ 형태로 저장·전송",
+        keys: ["a4"],
+        answers: ["암호문"],
+      },
+      {
+        sectionTitle: "방화벽",
+        template: "네트워크에서 외부의 불법적 ___을 막고 ___ 접근만 허용해 내부 정보를 보호하는 시스템",
+        keys: ["f1", "f2"],
+        answers: ["침입", "정상"],
+      },
+      {
+        sectionTitle: "전자 서명",
+        template: "학생증·주민 등록증처럼 ___을 확인해 주는, 안전한 거래를 위한 ___ 역할",
+        keys: ["e1", "e2"],
+        answers: ["신원", "증명서"],
+      },
+    ],
+  },
+  {
+    id: "necessity",
+    label: "정보 보안 기술은 왜 필요할까?",
+    unitTag: "230쪽",
+    type: "paragraphFill",
+    intro: {
+      heading: "교과서 230쪽 아래 내용을 정리했어요. 빈칸을 채워 보자.",
+    },
+    lines: [
+      {
+        sectionTitle: "인터넷 특성으로 인한 위협",
+        template: "쉽게 접속·공유 가능한 인터넷의 특성 때문에 정보를 ___하려는 사람도 쉽게 접근 가능",
+        keys: ["n1"],
+        answers: ["악용"],
+      },
+      {
+        sectionTitle: "공개된 소스 코드의 위험",
+        template: "인터넷 서버 운영체제·표준 규약의 ___ 공개로 해커가 시스템 ___을 찾아 공격, 해킹 정보도 공유",
+        keys: ["n2", "n3"],
+        answers: ["소스 코드", "취약점"],
+      },
+      {
+        sectionTitle: "인식 부족의 위험",
+        template: "정보 공급자·사용자의 정보 보안 인식 부족 → ___한 대책 수립 시 큰 어려움 발생",
+        keys: ["n4"],
+        answers: ["미흡"],
+      },
+      {
+        sectionTitle: "부주의의 파급력",
+        template: "단 한 명의 부주의로 같은 시스템 사용자 ___가 입는 ___",
+        keys: ["n5", "n6"],
+        answers: ["전체", "피해"],
+      },
+    ],
+  },
+  {
+    id: "roles",
+    label: "정보 공급자와 정보 사용자",
+    unitTag: "231쪽",
+    type: "paragraphFill",
+    intro: {
+      heading: "교과서 230~231쪽 내용을 정리했어요. 빈칸을 채워 보자.",
+    },
+    lines: [
+      {
+        template: "정보를 사용·제공·관리하는 정보 관계자들의 보안 실천 → 안전하게 유지되는 우리 ___",
+        keys: ["r1"],
+        answers: ["사회"],
+      },
+      {
+        sectionTitle: "정보 공급자",
+        pageNote: "230쪽",
+        template: "정보를 ___·___하여 가치 있게 활용하는 기관·개인",
+        keys: ["r2", "r3"],
+        answers: ["수집", "저장"],
+      },
+      {
+        sectionTitle: "정보 사용자",
+        pageNote: "230쪽",
+        template: "정보 공급자가 ___한 정보를 이용하는 기관·개인",
+        keys: ["r4"],
+        answers: ["축적"],
+      },
+    ],
+  },
+  {
+    id: "supplier",
+    label: "정보 공급자의 정보 보안 수칙",
+    unitTag: "231쪽",
+    type: "paragraphFill",
+    intro: {
+      heading: "아래 정보 공급자의 정보 보안 수칙을 정리했어요. 빈칸을 채워 보자.",
+    },
+    lines: [
+      {
+        sectionTitle: "사고 대응 계획",
+        template: "정보 보안 ___ 발생 시 취해야 할 단계별 계획을 미리 수립",
+        keys: ["s1"],
+        answers: ["침해 사고"],
+      },
+      {
+        sectionTitle: "위험 평가",
+        template: "정보 시스템 인프라의 ___ 위협 평가 → 대비 전략 수립",
+        keys: ["s2"],
+        answers: ["잠재적"],
+      },
+      {
+        sectionTitle: "직원 교육",
+        template: "정보 보안·보안 정책 교육으로 업무 중 정보 ___ 실천 지원",
+        keys: ["s3"],
+        answers: ["보호"],
+      },
+      {
+        sectionTitle: "액세스 제어",
+        template: "개인별 ___ 부여로 접근 제어, 무분별한 사용 방지",
+        keys: ["s4"],
+        answers: ["권한"],
+      },
+    ],
+  },
+  {
+    id: "user",
+    label: "정보 사용자의 정보 보안 수칙",
+    unitTag: "231쪽",
+    type: "paragraphFill",
+    intro: {
+      heading: "아래 정보 사용자의 정보 보안 수칙을 정리했어요. 빈칸을 채워 보자.",
+    },
+    lines: [
+      {
+        sectionTitle: "강력한 비밀번호 설정",
+        template: "다른 사람이 알 수 없도록 ___ 종류 이상 문자를 혼합한 ___ 자리 이상의 비밀번호",
+        keys: ["u1", "u2"],
+        answers: ["세 가지", "여덟"],
+      },
+      {
+        sectionTitle: "바이러스 백신 설치 및 최신 업데이트 유지",
+        template: "컴퓨터·스마트폰에 백신·악성 프로그램 방지 소프트웨어 설치, ___으로 업데이트",
+        keys: ["u3"],
+        answers: ["정기적"],
+      },
+      {
+        sectionTitle: "보안 무선망 사용 주의",
+        template: "비밀번호 없는 ___ 무선망에서는 민감한 정보 전송 자제, 신뢰 가능한 무선망 사용",
+        keys: ["u4"],
+        answers: ["공공"],
+      },
+      {
+        sectionTitle: "이중 인증",
+        template: "온라인 계정에 ___ 인증 사용 → 비밀번호 노출돼도 정보 보호 강화",
+        keys: ["u5"],
+        answers: ["2단계"],
+      },
+      {
+        sectionTitle: "의심스러운 링크 클릭 금지",
+        template: "인터넷 검색 결과·문자 수신 시 의심스러운 링크 클릭, 알 수 없는 ___ 다운로드 금지",
+        keys: ["u6"],
+        answers: ["파일"],
+      },
+      {
+        sectionTitle: "정기적인 데이터 백업",
+        template: "___, 악성 코드 등 위협으로부터 정보 손실 방지를 위한 정기 백업",
+        keys: ["u7"],
+        answers: ["하드웨어 장애"],
+      },
+    ],
+  },
+  {
+    id: "summary",
+    label: "개념 정리하기",
+    unitTag: "231쪽",
+    type: "paragraphFill",
+    intro: {
+      heading: "교과서 231쪽 '개념 정리하기'를 보고 빈칸을 채워 보자.",
+    },
+    lines: [
+      {
+        template: "___ : 정보의 생성·처리·저장·전송·출력 전 과정에서 정보를 안전하게 보호하는 방법·절차",
+        keys: ["c1"],
+        answers: ["정보 보안"],
+      },
+      {
+        template: "정보 보안 위협 요소 : ___, ___ 등",
+        keys: ["c2", "c3"],
+        answers: ["해킹", "악성 코드"],
+      },
+      {
+        template: "정보 보안 필요성 이해, 정보 보안 기술 활용 → ___ 실천",
+        keys: ["c4"],
+        answers: ["디지털 윤리"],
+      },
+    ],
+  },
+];
+
+/* ---------- 필드 메타데이터 (검토화면 / 교사용 / CSV 공용) ---------- */
+const FIELD_META = {};
+STEPS.forEach((step) => {
+  if (step.type === "paragraphFill") {
+    step.lines.forEach((line, li) => {
+      line.keys.forEach((k, ki) => {
+        FIELD_META[k] = { section: step.label, label: `빈칸 ${li + 1}-${ki + 1}` };
+      });
+    });
+  }
+});
+const ALL_FIELD_KEYS = Object.keys(FIELD_META);
+
+/* ---------- 정답 데이터 (교과서 원문 그대로 옮겨야 하는 문항만) ---------- */
+const ANSWER_KEY = {};
+STEPS.forEach((step) => {
+  if (step.type === "paragraphFill") {
+    step.lines.forEach((line) => {
+      if (line.answers) {
+        line.keys.forEach((k, i) => {
+          ANSWER_KEY[k] = line.answers[i];
+        });
+      }
+    });
+  }
+});
+
+/* 공백만 무시하고 나머지는 완전히 일치해야 정답 (교과서 원문 그대로 옮기는 문항용) */
+function normalizeForCheck(v) {
+  return (v || "").replace(/\s+/g, "").toLowerCase();
+}
+function isExactMatch(value, correctAnswer) {
+  return normalizeForCheck(value) === normalizeForCheck(correctAnswer);
+}
+
+/* ---------- 유틸 ---------- */
+function todayString() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+function nowTimeString() {
+  const d = new Date();
+  return d.toLocaleString("ko-KR", { hour12: false });
+}
+function blockPaste(e) {
+  e.preventDefault();
+}
+function blockContext(e) {
+  e.preventDefault();
+}
+function csvEscape(v) {
+  const s = (v ?? "").toString().replace(/"/g, '""');
+  return `"${s}"`;
+}
+
+/* ---------- 공통 입력 컴포넌트 ---------- */
+function BlankInput({ value, onChange, placeholder, width, correctAnswer, answerPool }) {
+  const hasValue = (value || "").trim().length > 0;
+  const usesPool = Array.isArray(answerPool);
+  const checked = (usesPool ? true : correctAnswer !== undefined) && hasValue;
+  const correct =
+    checked &&
+    (usesPool
+      ? answerPool.some((a) => isExactMatch(value, a))
+      : isExactMatch(value, correctAnswer));
+  const wrong = checked && !correct;
+  return (
+    <span className="blank-input-wrap">
+      <input
+        type="text"
+        value={value || ""}
+        onChange={(e) => onChange(e.target.value)}
+        onPaste={blockPaste}
+        onCopy={blockPaste}
+        onCut={blockPaste}
+        onContextMenu={blockContext}
+        placeholder={placeholder || ""}
+        className={`blank-input ${correct ? "is-correct" : ""} ${wrong ? "is-wrong" : ""}`}
+        style={width ? { width } : undefined}
+        autoComplete="off"
+      />
+      {correct && <span className="blank-mark ok">✓</span>}
+      {wrong && <span className="blank-mark no">✕</span>}
+    </span>
+  );
+}
+
+/* 문장 속 빈칸(___) 렌더링 */
+function FillLine({ template, keys, answers, values, onChange, orderIndependent }) {
+  const parts = template.split("___");
+  return (
+    <p className="fill-line">
+      {parts.map((part, i) => (
+        <React.Fragment key={i}>
+          {part}
+          {i < parts.length - 1 && (
+            <BlankInput
+              value={values[keys[i]]}
+              onChange={(v) => onChange(keys[i], v)}
+              width="110px"
+              correctAnswer={answers ? answers[i] : undefined}
+              answerPool={orderIndependent && answers ? answers : undefined}
+            />
+          )}
+        </React.Fragment>
+      ))}
+    </p>
+  );
+}
+
+/* ---------- 스텝 진행률 표시 (탑승권/서류 천공 느낌) ---------- */
+function Stepper({ current, total }) {
+  const items = Array.from({ length: total }, (_, i) => i);
+  return (
+    <div className="stepper-shell">
+      <div className="punch-row">
+        {items.map((i) => (
+          <span key={i} className={`punch ${i <= current ? "punched" : ""}`} />
+        ))}
+      </div>
+      <div className="stepper-track">
+        <div
+          className="stepper-fill"
+          style={{ width: `${(current / (total - 1)) * 100}%` }}
+        />
+      </div>
+      <div className="stepper-label">
+        <span className="step-no">STEP {current + 1}</span>
+        <span className="step-total"> / {total}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================== */
+
+function App() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const prefillName = urlParams.get("name") || "";
+  const prefillClass = urlParams.get("classNum") || urlParams.get("classNo") || "";
+  const prefillNumber = urlParams.get("number") || "";
+  const hasFullInfo =
+    prefillName.trim() !== "" && prefillClass.trim() !== "" && prefillNumber.trim() !== "";
+
+  const [phase, setPhase] = useState(hasFullInfo ? "form" : "cover"); // cover | form | review | done
+  const [stepIndex, setStepIndex] = useState(0);
+  const [student, setStudent] = useState({
+    classNum: prefillClass,
+    number: prefillNumber,
+    name: prefillName,
+  });
+  const [answers, setAnswers] = useState({});
+  const [submittedAt, setSubmittedAt] = useState(null);
+  const [dateStamp] = useState(todayString());
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+
+  // 교사용
+  const [teacherOpen, setTeacherOpen] = useState(false);
+  const [teacherAuthed, setTeacherAuthed] = useState(false);
+  const [teacherCodeInput, setTeacherCodeInput] = useState("");
+  const [teacherError, setTeacherError] = useState("");
+  const [submissions, setSubmissions] = useState([]);
+  const [loadingSubs, setLoadingSubs] = useState(false);
+  const [expanded, setExpanded] = useState({});
+
+  // 전역 우클릭 / 개발자도구 단축키 방지 (가벼운 방해 장치 수준, 완전 차단은 아님)
+  useEffect(() => {
+    const onContext = (e) => e.preventDefault();
+    const onKeyDown = (e) => {
+      const key = e.key.toUpperCase();
+      const blocked =
+        key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (key === "I" || key === "J" || key === "C")) ||
+        (e.ctrlKey && key === "U");
+      if (blocked) e.preventDefault();
+    };
+    document.addEventListener("contextmenu", onContext);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("contextmenu", onContext);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
+
+  const setAnswer = (key, value) => setAnswers((a) => ({ ...a, [key]: value }));
+
+  const step = STEPS[stepIndex];
+
+  const isStepValid = useMemo(() => {
+    if (!step) return false;
+    if (step.type === "paragraphFill") {
+      return step.lines.every((line) =>
+        line.keys.every((k, i) => {
+          if (line.answers) return isExactMatch(answers[k], line.answers[i]);
+          return (answers[k] || "").trim().length >= 1;
+        })
+      );
+    }
+    return false;
+  }, [step, answers]);
+
+  const coverValid =
+    student.classNum.trim().length > 0 &&
+    student.number.trim().length > 0 &&
+    student.name.trim().length > 0;
+
+  function goNext() {
+    if (stepIndex < STEPS.length - 1) {
+      setStepIndex((i) => i + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      setPhase("review");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+  function goPrev() {
+    if (stepIndex > 0) {
+      setStepIndex((i) => i - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      setPhase("cover");
+    }
+  }
+
+  async function handleSubmit() {
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      if (!SCRIPT_URL || SCRIPT_URL.includes("여기에")) {
+        throw new Error("SCRIPT_URL이 설정되지 않았습니다. 파일 상단의 SCRIPT_URL을 확인하세요.");
+      }
+      const submittedTime = nowTimeString();
+      const payload = {
+        version: "v222",
+        grade: GRADE_LABEL,
+        classNum: student.classNum,
+        number: student.number,
+        name: student.name,
+        submittedAt: submittedTime,
+        ...answers,
+      };
+      // Apps Script 프리플라이트(OPTIONS) 회피를 위해 text/plain으로 전송
+      const res = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || "저장 실패");
+      setSubmittedAt(submittedTime);
+      setPhase("done");
+    } catch (e) {
+      setSubmitError("제출 중 문제가 발생했습니다. 다시 시도해 주세요. (" + (e.message || e) + ")");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  /* ---------- 교사용 데이터 로드 (구글 시트에서 불러오기) ---------- */
+  async function loadSubmissions() {
+    setLoadingSubs(true);
+    try {
+      if (!SCRIPT_URL || SCRIPT_URL.includes("여기에")) {
+        throw new Error("SCRIPT_URL이 설정되지 않았습니다.");
+      }
+      const res = await fetch(SCRIPT_URL + "?version=v222", { method: "GET" });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || "불러오기 실패");
+      const results = (data.rows || []).sort((a, b) =>
+        a["제출시각"] < b["제출시각"] ? 1 : -1
+      );
+      setSubmissions(results);
+    } catch (e) {
+      setSubmissions([]);
+      setTeacherError("제출 목록을 불러오지 못했습니다. (" + (e.message || e) + ")");
+    } finally {
+      setLoadingSubs(false);
+    }
+  }
+
+  function handleTeacherLogin() {
+    if (teacherCodeInput.trim() === TEACHER_CODE) {
+      setTeacherAuthed(true);
+      setTeacherError("");
+      loadSubmissions();
+    } else {
+      setTeacherError("확인 코드가 올바르지 않습니다.");
+    }
+  }
+
+  function downloadCSV() {
+    const headers = [
+      "반",
+      "번호",
+      "이름",
+      ...ALL_FIELD_KEYS.map((k) => `${FIELD_META[k].section}_${FIELD_META[k].label}`),
+      "제출시각",
+    ];
+    const rows = submissions.map((s) => {
+      const base = [s["반"], s["번호"], s["이름"]];
+      const ans = ALL_FIELD_KEYS.map((k) => s[k] || "");
+      return [...base, ...ans, s["제출시각"]];
+    });
+    const csvContent =
+      "\uFEFF" +
+      [headers, ...rows].map((r) => r.map(csvEscape).join(",")).join("\r\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${UNIT_CODE}_제출목록.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /* ================= 렌더 ================= */
+  return (
+    <div className="app-root">
+
+      {/* ================= 학생용 화면 ================= */}
+      {phase !== "done" && (
+        <div className="doc-shell">
+          <div className="doc-header">
+            <div>
+              <div className="doc-no">문서번호 {DOC_NO}</div>
+              <div className="unit-path">{UNIT_PATH}</div>
+              <div className="unit-title">{UNIT_TITLE}</div>
+            </div>
+            <div className="seal">
+              <span>정보</span>
+              <span className="seal-code">{UNIT_CODE}</span>
+            </div>
+          </div>
+
+          {phase === "form" && <Stepper current={stepIndex} total={STEPS.length} />}
+
+          <div className={`doc-card ${phase !== "form" ? "last" : ""}`}>
+            {phase === "cover" && (
+              <div className="cover-card">
+                <span className="section-tag">학생 정보 입력</span>
+                <div className="cover-title">온라인 학습지</div>
+                <div className="cover-sub">
+                  아래 정보를 입력한 뒤 학습지를 시작하세요. 답안은 직접 타이핑해야 하며
+                  복사/붙여넣기는 지원되지 않습니다.
+                </div>
+                <div className="cover-grid">
+                  <div className="field-box">
+                    <label>학년</label>
+                    <div className="fixed-box">{GRADE_LABEL}</div>
+                  </div>
+                  <div className="field-box">
+                    <label>반</label>
+                    <input
+                      value={student.classNum}
+                      onChange={(e) =>
+                        setStudent((s) => ({ ...s, classNum: e.target.value }))
+                      }
+                      onPaste={blockPaste}
+                      onContextMenu={blockContext}
+                      placeholder="예: 3"
+                    />
+                  </div>
+                  <div className="field-box">
+                    <label>번호</label>
+                    <input
+                      value={student.number}
+                      onChange={(e) =>
+                        setStudent((s) => ({ ...s, number: e.target.value }))
+                      }
+                      onPaste={blockPaste}
+                      onContextMenu={blockContext}
+                      placeholder="예: 12"
+                    />
+                  </div>
+                  <div className="field-box" style={{ gridColumn: "1 / -1" }}>
+                    <label>이름</label>
+                    <input
+                      value={student.name}
+                      onChange={(e) =>
+                        setStudent((s) => ({ ...s, name: e.target.value }))
+                      }
+                      onPaste={blockPaste}
+                      onContextMenu={blockContext}
+                      placeholder="이름을 입력하세요"
+                    />
+                  </div>
+                </div>
+                <div className="btn-row">
+                  <button
+                    className="btn btn-primary"
+                    disabled={!coverValid}
+                    onClick={() => setPhase("form")}
+                  >
+                    학습지 시작하기 →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {phase === "form" && (
+              <StepRenderer step={step} answers={answers} setAnswer={setAnswer} />
+            )}
+
+            {phase === "form" && (
+              <div className="btn-row">
+                <button className="btn btn-ghost" onClick={goPrev}>
+                  ← 이전
+                </button>
+                <button className="btn btn-primary" disabled={!isStepValid} onClick={goNext}>
+                  {stepIndex === STEPS.length - 1 ? "검토하기 →" : "다음 →"}
+                </button>
+              </div>
+            )}
+
+            {phase === "review" && (
+              <ReviewScreen
+                student={student}
+                dateStamp={dateStamp}
+                answers={answers}
+                onEdit={(idx) => {
+                  setStepIndex(idx);
+                  setPhase("form");
+                }}
+                onBack={() => {
+                  setStepIndex(STEPS.length - 1);
+                  setPhase("form");
+                }}
+                onSubmit={handleSubmit}
+                submitting={submitting}
+                submitError={submitError}
+              />
+            )}
+          </div>
+
+          {phase !== "review" && (
+            <div className="footer-note">
+              {UNIT_PATH} · {UNIT_TITLE}
+              <br />
+              <button className="teacher-link" onClick={() => setTeacherOpen(true)}>
+                교사용
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {phase === "done" && (
+        <div className="doc-shell">
+          <div className="doc-header">
+            <div>
+              <div className="doc-no">문서번호 {DOC_NO}</div>
+              <div className="unit-path">{UNIT_PATH}</div>
+              <div className="unit-title">{UNIT_TITLE}</div>
+            </div>
+            <div className="seal">
+              <span>정보</span>
+              <span className="seal-code">{UNIT_CODE}</span>
+            </div>
+          </div>
+          <div className="doc-card last">
+            <div className="done-wrap">
+              <div className="done-badge">✓</div>
+              <h2 className="serif" style={{ color: "var(--indigo-900)" }}>
+                제출 완료
+              </h2>
+              <p style={{ color: "var(--ink-soft)", fontSize: 14 }}>
+                {student.name} 학생의 학습지가 정상적으로 제출되었습니다.
+                <br />
+                제출 시각 : {submittedAt}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= 교사용 로그인 모달 ================= */}
+      {teacherOpen && !teacherAuthed && (
+        <div className="modal-overlay" onClick={() => setTeacherOpen(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <h3 className="serif">교사용 확인</h3>
+            <p>확인 코드를 입력하면 제출 목록을 볼 수 있습니다.</p>
+            {teacherError && <div className="modal-error">{teacherError}</div>}
+            <input
+              type="password"
+              placeholder="확인 코드"
+              value={teacherCodeInput}
+              onChange={(e) => setTeacherCodeInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleTeacherLogin()}
+            />
+            <div className="modal-actions">
+              <button className="btn btn-ghost" onClick={() => setTeacherOpen(false)}>
+                취소
+              </button>
+              <button className="btn btn-primary" onClick={handleTeacherLogin}>
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= 교사용 대시보드 ================= */}
+      {teacherOpen && teacherAuthed && (
+        <div className="modal-overlay" onClick={() => setTeacherOpen(false)}>
+          <div
+            className="modal-box"
+            style={{ maxWidth: 900, maxHeight: "85vh", overflowY: "auto" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="dash-header">
+              <div>
+                <div className="dash-title serif">제출 목록</div>
+                <div className="dash-count">
+                  {loadingSubs ? "불러오는 중..." : `총 ${submissions.length}건 제출됨`}
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="btn btn-ghost" onClick={loadSubmissions}>
+                  새로고침
+                </button>
+                <button
+                  className="btn btn-amber"
+                  onClick={downloadCSV}
+                  disabled={submissions.length === 0}
+                >
+                  CSV 다운로드
+                </button>
+                <button className="btn btn-ghost" onClick={() => setTeacherOpen(false)}>
+                  닫기
+                </button>
+              </div>
+            </div>
+
+            {submissions.length === 0 && !loadingSubs && (
+              <p style={{ color: "var(--ink-soft)", fontSize: 13.5 }}>
+                아직 제출된 학습지가 없습니다.
+              </p>
+            )}
+
+            {submissions.map((s, idx) => {
+              const key = `${s["반"]}-${s["번호"]}-${s["이름"]}-${idx}`;
+              const isOpen = !!expanded[key];
+              return (
+                <div className="sub-card" key={key}>
+                  <div
+                    className="sub-row"
+                    onClick={() => setExpanded((e) => ({ ...e, [key]: !isOpen }))}
+                  >
+                    <div className="sub-meta">
+                      <b>{s["이름"]}</b> · {s["반"]}반 {s["번호"]}번
+                    </div>
+                    <div className="sub-time">
+                      제출 {s["제출시각"]} {isOpen ? "▲" : "▼"}
+                    </div>
+                  </div>
+                  {isOpen && (
+                    <div className="sub-detail">
+                      {STEPS.map((st) => {
+                        const keys = Object.keys(FIELD_META).filter(
+                          (k) => FIELD_META[k].section === st.label
+                        );
+                        if (keys.length === 0) return null;
+                        return (
+                          <div className="review-section" key={st.id}>
+                            <div className="review-section-title">{st.label}</div>
+                            {keys.map((k) => (
+                              <div className="review-item" key={k}>
+                                <span className="rk">{FIELD_META[k].label} : </span>
+                                <span className="rv">
+                                  {s[k] || (
+                                    <em style={{ color: "#b3432f" }}>미입력</em>
+                                  )}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- 문항 타입별 렌더러 ---------- */
+function StepRenderer({ step, answers, setAnswer }) {
+  return (
+    <div>
+      <span className="section-tag">{step.unitTag}</span>
+      <h2 className="section-title">{step.label}</h2>
+
+      {step.intro && (
+        <div className="intro-box">
+          {step.intro.heading && <span className="heading">{step.intro.heading}</span>}
+        </div>
+      )}
+
+      {step.type === "paragraphFill" &&
+        step.lines.map((line, i) => (
+          <React.Fragment key={i}>
+            {line.sectionTitle && (
+              <p className="fill-section-title">
+                {line.sectionTitle}
+                {line.pageNote && <span className="fill-page-note">({line.pageNote})</span>}
+              </p>
+            )}
+            <FillLine
+              template={line.template}
+              keys={line.keys}
+              answers={line.answers}
+              values={answers}
+              onChange={setAnswer}
+              orderIndependent={line.orderIndependent}
+            />
+          </React.Fragment>
+        ))}
+    </div>
+  );
+}
+
+/* ---------- 검토 화면 ---------- */
+function ReviewScreen({
+  student,
+  dateStamp,
+  answers,
+  onEdit,
+  onBack,
+  onSubmit,
+  submitting,
+  submitError,
+}) {
+  return (
+    <div>
+      <span className="section-tag">최종 확인</span>
+      <h2 className="section-title">전체 답안 검토</h2>
+
+      <div className="review-section">
+        <div className="review-section-title">학생 정보</div>
+        <div className="review-item">
+          <span className="rk">학년/반/이름 : </span>
+          <span className="rv">
+            {GRADE_LABEL} {student.classNum}반 {student.number}번 {student.name}
+          </span>
+        </div>
+        <div className="review-item">
+          <span className="rk">날짜 : </span>
+          <span className="rv">{dateStamp}</span>
+        </div>
+      </div>
+
+      {STEPS.map((step, idx) => {
+        const keys = Object.keys(FIELD_META).filter(
+          (k) => FIELD_META[k].section === step.label
+        );
+        if (keys.length === 0) return null;
+        return (
+          <div className="review-section" key={step.id}>
+            <div className="review-section-title">
+              {step.label}
+              <button className="link-btn" onClick={() => onEdit(idx)}>
+                수정하기
+              </button>
+            </div>
+            {keys.map((k) => (
+              <div className="review-item" key={k}>
+                <span className="rk">{FIELD_META[k].label} : </span>
+                <span className="rv">
+                  {(answers[k] || "").trim() || (
+                    <em style={{ color: "#b3432f" }}>미입력</em>
+                  )}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+
+      {submitError && (
+        <div style={{ color: "var(--danger)", fontSize: 13, marginBottom: 10 }}>
+          {submitError}
+        </div>
+      )}
+
+      <div className="btn-row">
+        <button className="btn btn-ghost" onClick={onBack}>
+          ← 수정하러 가기
+        </button>
+        <button className="btn btn-primary" disabled={submitting} onClick={onSubmit}>
+          {submitting ? "제출 중..." : "제출하기"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+</script>
+</body>
+</html>
